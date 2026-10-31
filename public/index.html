@@ -1,0 +1,4804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f4f1e9">
+  <meta name="description" content="剑网3 个人收益工作台：记录副本、阵营收益与奇遇资历，追踪每周角色 CD。">
+  <title>剑网3 个人收益工作台</title>
+  <style>
+:root {
+  --bg: #f4f1e9;
+  --bg-deep: #ece7da;
+  --surface: #fffdf8;
+  --surface-soft: #faf7ef;
+  --surface-muted: #f2eee3;
+  --ink: #202a25;
+  --ink-soft: #43524b;
+  --muted: #748078;
+  --muted-light: #9aa49d;
+  --line: #e2ddcf;
+  --line-soft: #eee9dd;
+  --accent: #1f5b4f;
+  --accent-deep: #17483e;
+  --accent-soft: #e7efe9;
+  --accent-mist: #f0f5f1;
+  --gold: #a87c32;
+  --gold-soft: #f4ead4;
+  --danger: #a2473d;
+  --danger-soft: #f8e9e5;
+  --positive: #216b57;
+  --negative: #b04b40;
+  --shadow: 0 1px 2px rgba(36, 48, 41, 0.035), 0 12px 32px rgba(36, 48, 41, 0.025);
+  --radius: 18px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 520px at 82% -12%, rgba(213, 226, 215, 0.42), transparent 65%),
+    linear-gradient(180deg, #f6f3ec 0%, var(--bg) 32%, #f3f0e8 100%);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+::selection {
+  background: #d9e7dd;
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid rgba(31, 91, 79, 0.55);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 200;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--ink);
+  color: #fff;
+  transform: translateY(-160%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* ---------- Header ---------- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  min-height: 82px;
+  padding: 0 clamp(22px, 4vw, 58px);
+  background: rgba(246, 243, 236, 0.96);
+  border-bottom: 1px solid rgba(220, 214, 200, 0.8);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+  border-radius: 12px;
+}
+
+.brand-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--accent);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+
+.brand-mark::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  border: 1px solid rgba(240, 230, 209, 0.72);
+  border-radius: 50%;
+}
+
+.brand-mark span {
+  position: absolute;
+  width: 1.5px;
+  height: 18px;
+  background: #e9dcc3;
+  border-radius: 2px;
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.brand-kicker {
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.brand-title {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(232, 227, 214, 0.7);
+}
+
+.tab {
+  padding: 8px 19px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.tab:hover {
+  color: var(--ink-soft);
+}
+
+.tab.is-active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 5px rgba(42, 55, 47, 0.08);
+}
+
+.access-badge {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-left: auto;
+  min-width: 0;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 253, 248, 0.7);
+}
+
+.access-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #3d8a6f;
+  box-shadow: 0 0 0 3px rgba(61, 138, 111, 0.12);
+}
+
+.access-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.access-label {
+  color: var(--muted-light);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.access-email {
+  max-width: 230px;
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.access-badge.is-warning .access-dot {
+  background: #c18a37;
+  box-shadow: 0 0 0 3px rgba(193, 138, 55, 0.12);
+}
+
+/* ---------- Layout ---------- */
+
+.shell {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 38px clamp(22px, 4vw, 58px) 28px;
+}
+
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  margin-bottom: 28px;
+}
+
+.page-head-copy {
+  min-width: 0;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: var(--accent);
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+}
+
+.eyebrow-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.page-head h1 {
+  font-size: clamp(32px, 3.4vw, 44px);
+  font-weight: 660;
+  letter-spacing: -0.045em;
+  line-height: 1.12;
+}
+
+.page-desc {
+  max-width: 580px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 9px 17px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fffdf6;
+  border-color: var(--accent);
+  box-shadow: 0 1px 2px rgba(23, 72, 62, 0.16);
+}
+
+.btn-primary:hover {
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--ink-soft);
+  border-color: var(--line);
+}
+
+.btn-secondary:hover {
+  background: var(--surface-soft);
+  border-color: #d3cbbb;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border-color: transparent;
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 253, 248, 0.72);
+  color: var(--ink-soft);
+}
+
+.btn-quiet {
+  background: transparent;
+  color: var(--muted);
+  border-color: transparent;
+}
+
+.btn-quiet:hover {
+  color: var(--ink-soft);
+  background: var(--surface-muted);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+
+.btn-danger:hover {
+  background: #8c3a32;
+  border-color: #8c3a32;
+}
+
+.btn-small {
+  min-height: 34px;
+  padding: 7px 12px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+.btn-plus {
+  margin-top: -1px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+/* ---------- Toolbar / segmented ---------- */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.segmented {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--bg-deep);
+}
+
+.segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 13px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 550;
+  white-space: nowrap;
+}
+
+.segment:hover {
+  color: var(--ink-soft);
+}
+
+.segment.is-active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 4px rgba(42, 55, 47, 0.08);
+}
+
+.segment-count {
+  display: inline-grid;
+  min-width: 19px;
+  height: 19px;
+  place-items: center;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(116, 128, 120, 0.1);
+  color: var(--muted);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.segment.is-active .segment-count {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.segmented-small {
+  padding: 3px;
+  border-radius: 10px;
+}
+
+.segmented-small .segment {
+  padding: 6px 11px;
+  font-size: 11.5px;
+}
+
+.toolbar-note {
+  color: var(--muted-light);
+  font-size: 11.5px;
+}
+
+/* ---------- Panels ---------- */
+
+.panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.panel + .panel {
+  margin-top: 20px;
+}
+
+.panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 21px 26px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.panel-head h2 {
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.panel-sub {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+.soft-badge {
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 550;
+  white-space: nowrap;
+}
+
+.chart-unit {
+  flex: 0 0 auto;
+  color: var(--muted-light);
+  font-size: 11px;
+}
+
+/* ---------- Tables ---------- */
+
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-scroll-hint {
+  display: none;
+}
+
+.data-table {
+  width: 100%;
+  min-width: 960px;
+  border-spacing: 0;
+  border-collapse: separate;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table th {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.055em;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 15px 16px;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--ink-soft);
+  font-size: 13px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.data-table tbody tr:hover td {
+  background: #fcfaf4;
+}
+
+.data-table tfoot td {
+  padding: 14px 16px;
+  border-top: 1px solid var(--line);
+  background: #f6f2e8;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.data-table .col-number {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.data-table .col-actions {
+  width: 96px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.data-table .col-date {
+  width: 104px;
+  white-space: nowrap;
+}
+
+.data-table .col-title {
+  min-width: 190px;
+}
+
+.data-table .col-note {
+  min-width: 150px;
+  max-width: 250px;
+}
+
+.data-table .col-account {
+  width: 130px;
+}
+
+.data-table .col-event {
+  min-width: 210px;
+}
+
+.overview-table {
+  min-width: 1040px;
+}
+
+.overview-table .col-character {
+  width: 190px;
+}
+
+.overview-table .col-cd {
+  width: 380px;
+}
+
+.overview-table .col-number {
+  width: 140px;
+}
+
+.compact-table {
+  min-width: 0;
+}
+
+.summary-label {
+  color: var(--muted);
+  font-weight: 550;
+}
+
+.total-net {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.tfoot-split {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.tfoot-split strong {
+  color: var(--ink);
+}
+
+.tfoot-meta {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+/* ---------- Cells ---------- */
+
+.character-cell {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.avatar {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid #dce6de;
+  border-radius: 10px;
+  background: var(--accent-mist);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.avatar.is-muted {
+  border-color: var(--line);
+  background: var(--surface-muted);
+  color: var(--muted);
+}
+
+.cell-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cell-main {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cell-sub {
+  overflow: hidden;
+  color: var(--muted-light);
+  font-size: 10.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-name {
+  color: var(--ink-soft);
+  font-size: 12.5px;
+}
+
+.money {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.money.is-positive {
+  color: var(--positive);
+}
+
+.money.is-negative {
+  color: var(--negative);
+}
+
+.money.is-muted {
+  color: var(--muted-light);
+  font-weight: 500;
+}
+
+.money-unit {
+  margin-left: 2px;
+  color: var(--muted-light);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.cd-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px 16px;
+}
+
+.cd-item {
+  min-width: 0;
+}
+
+.cd-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cd-name {
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cd-frac {
+  flex: 0 0 auto;
+  color: var(--muted-light);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.cd-track {
+  height: 3px;
+  margin-top: 4px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #ebe7dc;
+}
+
+.cd-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #aab7af;
+}
+
+.cd-item.is-clear .cd-name {
+  color: var(--accent);
+}
+
+.cd-item.is-clear .cd-frac {
+  color: var(--accent);
+}
+
+.cd-item.is-clear .cd-track span {
+  background: var(--accent);
+}
+
+.cd-item.is-empty .cd-name {
+  color: var(--muted-light);
+}
+
+.cd-placeholder {
+  color: var(--muted-light);
+  font-size: 11px;
+}
+
+.event-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.event-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.event-date {
+  flex: 0 0 auto;
+  color: var(--muted-light);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.event-title {
+  overflow: hidden;
+  max-width: 150px;
+  color: var(--ink-soft);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.event-type {
+  flex: 0 0 auto;
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.no-event {
+  color: var(--muted-light);
+  font-size: 11.5px;
+}
+
+/* ---------- Tags ---------- */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+
+.tag-dungeon {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.tag-faction {
+  background: var(--gold-soft);
+  color: #8f6727;
+}
+
+.tag-other {
+  background: #eef0ed;
+  color: #68736c;
+}
+
+.tag-event-qiyu {
+  background: var(--gold-soft);
+  color: #8f6727;
+}
+
+.tag-event-zili {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.tag-event-other {
+  background: #eef0ed;
+  color: #68736c;
+}
+
+.boss-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.boss-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--surface-muted);
+  color: var(--muted);
+  font-size: 9.5px;
+  font-weight: 600;
+}
+
+.boss-badge.is-clear {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.note-text {
+  display: block;
+  max-width: 230px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.link-button {
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 550;
+}
+
+.link-button:hover {
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+
+.link-button.is-danger:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* ---------- Status / switches ---------- */
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.status::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #a5aea7;
+}
+
+.status.is-on {
+  color: var(--accent);
+}
+
+.status.is-on::before {
+  background: #3f8a70;
+}
+
+.switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 40px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #d8d5ca;
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(32, 42, 37, 0.16);
+  transition: left 140ms ease;
+}
+
+.switch[aria-checked="true"] {
+  background: var(--accent);
+}
+
+.switch[aria-checked="true"]::after {
+  left: 21px;
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.switch-label {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+/* ---------- Empty states ---------- */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 52px 24px 56px;
+  text-align: center;
+}
+
+.empty-mark {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  margin-bottom: 14px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-soft);
+  color: var(--gold);
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.empty-state h3 {
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.empty-state p {
+  max-width: 390px;
+  margin: 6px 0 18px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.inline-empty {
+  padding: 24px 26px;
+  color: var(--muted-light);
+  font-size: 12px;
+}
+
+/* ---------- Charts ---------- */
+
+.chart-panel {
+  padding-bottom: 8px;
+}
+
+.chart-frame {
+  position: relative;
+  width: 100%;
+  padding: 14px 22px 18px;
+}
+
+.chart-frame-overview {
+  height: 330px;
+}
+
+.chart-frame-trend {
+  height: 285px;
+}
+
+.chart-frame canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.chart-empty {
+  position: absolute;
+  inset: 14px 22px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: rgba(250, 247, 239, 0.55);
+  text-align: center;
+}
+
+.chart-empty p {
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.chart-empty span {
+  color: var(--muted-light);
+  font-size: 11px;
+}
+
+/* ---------- Trend ---------- */
+
+.trend-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.month-picker input {
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 11.5px;
+}
+
+.month-picker input:disabled {
+  color: var(--muted-light);
+  background: var(--surface-muted);
+  opacity: 0.75;
+}
+
+.trend-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 26px;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.trend-summary div {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.trend-summary span {
+  color: var(--muted-light);
+  font-size: 10.5px;
+}
+
+.trend-summary strong {
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- Filters ---------- */
+
+.filter-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 253, 248, 0.72);
+}
+
+.field-inline {
+  flex: 1 1 145px;
+  min-width: 128px;
+  max-width: 210px;
+}
+
+.field-inline span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 550;
+}
+
+.field-inline select,
+.field-inline input {
+  width: 100%;
+  height: 36px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 11.5px;
+}
+
+.filter-reset {
+  margin-left: auto;
+  min-height: 36px;
+  font-size: 11.5px;
+}
+
+/* ---------- Subtabs ---------- */
+
+.subtabs {
+  display: flex;
+  gap: 24px;
+  margin: -4px 0 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.subtab {
+  position: relative;
+  padding: 9px 1px 12px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.subtab:hover {
+  color: var(--ink-soft);
+}
+
+.subtab.is-active {
+  color: var(--accent);
+}
+
+.subtab.is-active::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+/* ---------- Settings ---------- */
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.settings-grid-top {
+  margin-bottom: 20px;
+}
+
+.settings-grid .panel + .panel,
+.settings-panel + .settings-panel {
+  margin-top: 0;
+}
+
+.settings-panel {
+  margin-bottom: 20px;
+}
+
+.settings-grid .settings-panel {
+  margin-bottom: 0;
+}
+
+.settings-panel .panel-head {
+  padding-bottom: 18px;
+}
+
+.settings-panel .data-table th {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.settings-panel .data-table td {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.event-type-list {
+  padding: 2px 0;
+}
+
+.event-type-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px 26px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.event-type-row:last-child {
+  border-bottom: 0;
+}
+
+.type-glyph {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--surface-muted);
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.event-type-row.is-active .type-glyph {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.event-type-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.event-type-copy strong {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.event-type-copy small {
+  color: var(--muted-light);
+  font-size: 10px;
+}
+
+.event-type-row .switch {
+  margin-left: auto;
+}
+
+.export-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 24px 26px;
+}
+
+.export-copy h2 {
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.export-copy p {
+  max-width: 640px;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+/* ---------- Footer ---------- */
+
+.site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 10px clamp(22px, 4vw, 58px) 34px;
+  color: var(--muted-light);
+  font-size: 10.5px;
+}
+
+.site-footer p {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.footer-mark {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #9bafa3;
+}
+
+.footer-meta {
+  gap: 9px;
+}
+
+.footer-sep {
+  color: #c2c1b8;
+}
+
+/* ---------- Boot screen ---------- */
+
+.boot-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(800px 400px at 50% 30%, rgba(217, 229, 218, 0.7), transparent 70%),
+    var(--bg);
+}
+
+.boot-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(400px, 100%);
+  text-align: center;
+}
+
+.boot-mark {
+  position: relative;
+  display: grid;
+  width: 54px;
+  height: 54px;
+  margin-bottom: 20px;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--accent);
+}
+
+.boot-mark::before {
+  content: "";
+  width: 27px;
+  height: 27px;
+  border: 1.5px solid rgba(240, 230, 209, 0.74);
+  border-radius: 50%;
+}
+
+.boot-mark span {
+  position: absolute;
+  width: 2px;
+  height: 24px;
+  background: #e9dcc3;
+}
+
+.boot-kicker {
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.18em;
+}
+
+.boot-card h1 {
+  margin-top: 6px;
+  font-size: 26px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+
+.boot-message {
+  margin: 10px 0 20px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* ---------- Dialogs ---------- */
+
+.modal {
+  width: min(680px, calc(100vw - 32px));
+  max-height: calc(100dvh - 40px);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(218, 212, 198, 0.9);
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 28px 80px rgba(27, 38, 32, 0.22);
+}
+
+.modal::backdrop {
+  background: rgba(25, 35, 30, 0.44);
+}
+
+.modal-small {
+  width: min(500px, calc(100vw - 32px));
+}
+
+.modal-confirm {
+  width: min(430px, calc(100vw - 32px));
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 40px);
+}
+
+.modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 23px 28px 18px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.modal-kicker {
+  margin-bottom: 5px;
+  color: var(--gold);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.modal-head h2 {
+  font-size: 21px;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+
+.icon-button {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.icon-button:hover {
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+  padding: 22px 28px 24px;
+  overflow-y: auto;
+}
+
+.modal-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 28px;
+  border-top: 1px solid var(--line-soft);
+  background: var(--surface-soft);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.field > span {
+  color: var(--ink-soft);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.field em {
+  color: var(--danger);
+  font-style: normal;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-height: 41px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fffefa;
+  color: var(--ink);
+  font-size: 12.5px;
+}
+
+.field textarea {
+  min-height: 74px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.field select {
+  appearance: none;
+  padding-right: 30px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%23748078' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+}
+
+.field input:hover,
+.field select:hover,
+.field textarea:hover {
+  border-color: #d3cbbb;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: rgba(31, 91, 79, 0.55);
+  outline: 2px solid rgba(31, 91, 79, 0.12);
+  outline-offset: 0;
+}
+
+.field-span-2 {
+  grid-column: span 2;
+}
+
+.field-hint {
+  color: var(--muted-light);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.checkbox-field {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 2px 0;
+}
+
+.checkbox-field input {
+  width: 16px;
+  min-height: 16px;
+  margin: 1px 0 0;
+  accent-color: var(--accent);
+}
+
+.checkbox-field span {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+.net-preview {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 13px 16px;
+  border: 1px solid #dce8df;
+  border-radius: 11px;
+  background: var(--accent-mist);
+}
+
+.net-preview > span {
+  color: var(--accent);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.net-preview strong {
+  color: var(--accent);
+  font-size: 21px;
+  font-weight: 680;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.net-preview small {
+  margin-left: auto;
+  color: #7b9285;
+  font-size: 10px;
+}
+
+.net-preview.is-negative {
+  border-color: #ecd6d1;
+  background: #fbf1ee;
+}
+
+.net-preview.is-negative > span,
+.net-preview.is-negative strong {
+  color: var(--negative);
+}
+
+.net-preview.is-negative small {
+  color: #a9857e;
+}
+
+.dungeon-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted-light);
+  font-size: 9.5px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+}
+
+.section-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line-soft);
+}
+
+.form-error {
+  padding: 9px 12px;
+  border: 1px solid #eccfc9;
+  border-radius: 8px;
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+.confirm-body {
+  padding: 26px 28px 22px;
+}
+
+.confirm-body h2 {
+  margin-bottom: 7px;
+  font-size: 21px;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+
+.confirm-body p:last-child {
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.65;
+}
+
+/* ---------- Toasts ---------- */
+
+.toast-region {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 160;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  max-width: min(360px, calc(100vw - 32px));
+  padding: 11px 15px;
+  border-radius: 10px;
+  background: var(--ink);
+  color: #fffef8;
+  box-shadow: 0 10px 30px rgba(27, 38, 32, 0.2);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.toast.is-error {
+  background: #8e3c34;
+}
+
+.toast.is-success {
+  background: var(--accent);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1120px) {
+  .site-header {
+    gap: 18px;
+  }
+
+  .access-email {
+    max-width: 160px;
+  }
+
+  .overview-table .col-cd {
+    width: 340px;
+  }
+}
+
+@media (max-width: 900px) {
+  .site-header {
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    min-height: 0;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .brand {
+    order: 1;
+  }
+
+  .access-badge {
+    order: 2;
+  }
+
+  .tabs {
+    order: 3;
+    width: 100%;
+  }
+
+  .tab {
+    flex: 1;
+  }
+
+  .shell {
+    padding-top: 28px;
+  }
+
+  .page-head {
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-grid .settings-panel {
+    margin-bottom: 20px;
+  }
+
+  .settings-grid-top {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .site-header {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  .brand-title {
+    font-size: 14px;
+  }
+
+  .access-email {
+    max-width: 130px;
+  }
+
+  .shell {
+    padding: 24px 16px 22px;
+  }
+
+  .page-head {
+    flex-direction: column;
+    margin-bottom: 22px;
+  }
+
+  .page-head h1 {
+    font-size: 34px;
+  }
+
+  .page-actions {
+    width: 100%;
+  }
+
+  .page-actions .btn {
+    flex: 1;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .segmented {
+    width: 100%;
+    overflow-x: auto;
+    justify-content: stretch;
+  }
+
+  .segment {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .toolbar-note {
+    padding-left: 2px;
+  }
+
+  .panel-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px;
+  }
+
+  .panel-head .soft-badge,
+  .panel-head .chart-unit {
+    align-self: flex-start;
+  }
+
+  .panel:has(.table-scroll:not([hidden])) > .table-scroll-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px 0;
+    color: var(--muted-light);
+    font-size: 10px;
+  }
+
+  .panel:has(.table-scroll:not([hidden])) > .table-scroll-hint::before {
+    content: "↔";
+    color: var(--gold);
+    font-size: 11px;
+  }
+
+  .trend-head {
+    flex-direction: column;
+  }
+
+  .trend-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .month-picker {
+    flex: 1;
+  }
+
+  .month-picker input {
+    width: 100%;
+  }
+
+  .trend-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 18px;
+    margin: 0 18px;
+  }
+
+  .trend-summary div {
+    justify-content: space-between;
+  }
+
+  .chart-frame {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .chart-frame-overview {
+    height: 300px;
+  }
+
+  .chart-frame-trend {
+    height: 250px;
+  }
+
+  .chart-empty {
+    inset: 10px;
+  }
+
+  .filter-bar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .field-inline {
+    max-width: none;
+    min-width: 0;
+  }
+
+  .filter-reset {
+    grid-column: span 2;
+    margin-left: 0;
+  }
+
+  .settings-grid {
+    gap: 0;
+  }
+
+  .export-panel {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 20px 18px;
+  }
+
+  .export-panel .btn {
+    width: 100%;
+  }
+
+  .site-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 4px 16px 28px;
+  }
+
+  .modal {
+    width: calc(100vw - 20px);
+    max-height: calc(100dvh - 20px);
+    border-radius: 16px;
+  }
+
+  .modal-form {
+    max-height: calc(100dvh - 20px);
+  }
+
+  .modal-head,
+  .modal-body,
+  .modal-foot {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field-span-2 {
+    grid-column: span 1;
+  }
+
+  .net-preview small {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .toast-region {
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    align-items: stretch;
+  }
+
+  .toast {
+    max-width: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .access-label {
+    display: none;
+  }
+
+  .access-email {
+    max-width: 104px;
+  }
+
+  .brand-kicker {
+    font-size: 9px;
+  }
+
+  .brand-title {
+    font-size: 13px;
+  }
+
+  .tab {
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 12.5px;
+  }
+
+  .segment {
+    padding-left: 8px;
+    padding-right: 8px;
+    font-size: 11.5px;
+  }
+
+  .segment-count {
+    display: none;
+  }
+
+  .page-head h1 {
+    font-size: 31px;
+  }
+
+  .page-desc {
+    font-size: 12.5px;
+  }
+
+  .filter-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-reset {
+    grid-column: span 1;
+  }
+
+  .trend-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .segmented-small {
+    width: 100%;
+  }
+
+  .trend-summary strong {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
+
+  <header class="site-header">
+    <a class="brand" href="#" data-action="go-tab" data-tab="overview" aria-label="返回总览">
+      <span class="brand-mark" aria-hidden="true">
+        <span></span>
+      </span>
+      <span class="brand-copy">
+        <span class="brand-kicker">剑网3</span>
+        <span class="brand-title">个人收益工作台</span>
+      </span>
+    </a>
+
+    <nav class="tabs" id="main-tabs" aria-label="主要页面">
+      <button class="tab is-active" type="button" role="tab" aria-selected="true" aria-controls="view-overview" data-action="go-tab" data-tab="overview">总览</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" aria-controls="view-income" data-action="go-tab" data-tab="income">收益流水</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" aria-controls="view-settings" data-action="go-tab" data-tab="settings">设置</button>
+    </nav>
+
+    <div class="access-badge" id="access-badge" hidden>
+      <span class="access-dot" aria-hidden="true"></span>
+      <span class="access-copy">
+        <span class="access-label">Cloudflare Access</span>
+        <span class="access-email" id="access-email">已验证</span>
+      </span>
+    </div>
+  </header>
+
+  <main class="shell" id="main-content">
+    <section class="view" id="view-overview" data-view="overview" role="tabpanel" aria-labelledby="tab-overview">
+      <div class="page-head">
+        <div class="page-head-copy">
+          <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span><span id="overview-week">正在读取本周周期</span></p>
+          <h1>总览</h1>
+          <p class="page-desc">启用角色的本周 CD 进度、净收益与最近事件，一页看清。</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-ghost" type="button" data-action="refresh-all">刷新</button>
+          <button class="btn btn-primary" type="button" data-action="add-income">
+            <span class="btn-plus" aria-hidden="true">＋</span>记一笔收益
+          </button>
+        </div>
+      </div>
+
+      <div class="toolbar overview-toolbar">
+        <div class="segmented" id="overview-filter" role="group" aria-label="角色筛选">
+          <button class="segment is-active" type="button" data-action="overview-filter" data-filter="all" aria-pressed="true">
+            全部角色 <span class="segment-count" id="count-all">0</span>
+          </button>
+          <button class="segment" type="button" data-action="overview-filter" data-filter="recorded" aria-pressed="false">
+            本周有记录 <span class="segment-count" id="count-recorded">0</span>
+          </button>
+          <button class="segment" type="button" data-action="overview-filter" data-filter="uncleared" aria-pressed="false">
+            本周未清 CD <span class="segment-count" id="count-uncleared">0</span>
+          </button>
+        </div>
+        <p class="toolbar-note" id="overview-note">本周周期按北京时间（周一至周日）计算。</p>
+      </div>
+
+      <section class="panel overview-panel" aria-labelledby="overview-table-title">
+        <div class="panel-head">
+          <div>
+            <h2 id="overview-table-title">角色进度</h2>
+            <p class="panel-sub" id="overview-subtitle">正在载入角色数据…</p>
+          </div>
+          <span class="soft-badge" id="overview-count">0 个角色</span>
+        </div>
+        <p class="table-scroll-hint">左右滑动表格，查看完整列</p>
+
+        <div class="table-scroll">
+          <table class="data-table overview-table">
+            <thead>
+              <tr>
+                <th class="col-character">角色</th>
+                <th class="col-account">所属账号</th>
+                <th class="col-cd">本周副本 CD</th>
+                <th class="col-number">本周净收益</th>
+                <th class="col-event">最近事件</th>
+              </tr>
+            </thead>
+            <tbody id="overview-rows"></tbody>
+            <tfoot id="overview-foot"></tfoot>
+          </table>
+        </div>
+        <div class="empty-state" id="overview-empty" hidden>
+          <div class="empty-mark" aria-hidden="true">角</div>
+          <h3>还没有可展示的角色</h3>
+          <p id="overview-empty-copy">先到设置里添加账号与角色，再回来记录本周收益。</p>
+          <button class="btn btn-secondary" type="button" data-action="go-tab" data-tab="settings">前往设置</button>
+        </div>
+      </section>
+
+      <section class="panel chart-panel" aria-labelledby="overview-chart-title">
+        <div class="panel-head">
+          <div>
+            <h2 id="overview-chart-title">各角色本周净收益</h2>
+            <p class="panel-sub">按净收益从高到低排序，鼠标悬停查看收入与支出。</p>
+          </div>
+          <span class="chart-unit">单位：金</span>
+        </div>
+        <div class="chart-frame chart-frame-overview" id="overview-chart-frame">
+          <canvas id="overview-chart" aria-label="各角色本周净收益横向条形图" role="img"></canvas>
+          <div class="chart-empty" id="overview-chart-empty" hidden>
+            <p>本周还没有收益记录</p>
+            <span>记下第一笔收益后，这里会自动生成对比图。</span>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="view" id="view-income" data-view="income" role="tabpanel" aria-labelledby="tab-income" hidden>
+      <div class="page-head">
+        <div class="page-head-copy">
+          <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>流水与事件</p>
+          <h1>收益流水</h1>
+          <p class="page-desc">按时间回看收益趋势，逐笔核对副本、阵营与奇遇资历。</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" type="button" data-action="add-income" id="income-head-action">
+            <span class="btn-plus" aria-hidden="true">＋</span><span id="income-head-action-label">新增收益</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="subtabs" role="tablist" aria-label="收益流水类型">
+        <button class="subtab is-active" type="button" role="tab" aria-selected="true" data-action="income-subtab" data-subtab="income">收益记录</button>
+        <button class="subtab" type="button" role="tab" aria-selected="false" data-action="income-subtab" data-subtab="event">事件记录</button>
+      </div>
+
+      <section class="panel trend-panel" aria-labelledby="trend-title">
+        <div class="panel-head trend-head">
+          <div>
+            <h2 id="trend-title">收益趋势</h2>
+            <p class="panel-sub" id="trend-subtitle">每日净收益 · 当前月</p>
+          </div>
+          <div class="trend-controls">
+            <div class="segmented segmented-small" id="trend-mode" role="group" aria-label="趋势时间范围">
+              <button class="segment is-active" type="button" data-action="trend-mode" data-mode="month" aria-pressed="true">本月</button>
+              <button class="segment" type="button" data-action="trend-mode" data-mode="week" aria-pressed="false">本周</button>
+            </div>
+            <label class="month-picker" id="trend-month-wrap">
+              <span class="sr-only">选择月份</span>
+              <input type="month" id="trend-month">
+            </label>
+          </div>
+        </div>
+        <div class="trend-summary" id="trend-summary">
+          <div><span>净收益（金）</span><strong id="trend-net">0</strong></div>
+          <div><span>收入（金）</span><strong id="trend-income">0</strong></div>
+          <div><span>支出（金）</span><strong id="trend-expense">0</strong></div>
+          <div><span>记录</span><strong id="trend-count">0</strong></div>
+        </div>
+        <div class="chart-frame chart-frame-trend" id="trend-chart-frame">
+          <canvas id="trend-chart" aria-label="每日收益趋势折线图" role="img"></canvas>
+          <div class="chart-empty" id="trend-empty" hidden>
+            <p id="trend-empty-title">本月暂无记录</p>
+            <span>切换月份或记一笔收益，这里会自动更新。</span>
+          </div>
+        </div>
+      </section>
+
+      <div id="income-view">
+        <div class="filter-bar" aria-label="收益筛选">
+          <label class="field field-inline">
+            <span>角色</span>
+            <select id="income-character"><option value="">全部角色</option></select>
+          </label>
+          <label class="field field-inline">
+            <span>分类</span>
+            <select id="income-category">
+              <option value="">全部分类</option>
+              <option value="副本">副本</option>
+              <option value="阵营">阵营</option>
+              <option value="其它">其它</option>
+            </select>
+          </label>
+          <label class="field field-inline">
+            <span>开始日期</span>
+            <input type="date" id="income-start">
+          </label>
+          <label class="field field-inline">
+            <span>结束日期</span>
+            <input type="date" id="income-end">
+          </label>
+          <button class="btn btn-quiet filter-reset" type="button" data-action="reset-income-filters">重置</button>
+        </div>
+
+        <section class="panel" aria-labelledby="income-list-title">
+          <div class="panel-head">
+            <div>
+              <h2 id="income-list-title">收益明细</h2>
+              <p class="panel-sub" id="income-list-subtitle">全部时间 · 0 条记录</p>
+            </div>
+            <button class="btn btn-secondary btn-small" type="button" data-action="add-income">＋ 新增收益</button>
+          </div>
+          <p class="table-scroll-hint">左右滑动表格，查看完整列</p>
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="col-date">日期</th>
+                  <th>角色</th>
+                  <th>分类</th>
+                  <th class="col-title">名称</th>
+                  <th class="col-number">收入（金）</th>
+                  <th class="col-number">支出（金）</th>
+                  <th class="col-number">净收益（金）</th>
+                  <th class="col-note">备注</th>
+                  <th class="col-actions">操作</th>
+                </tr>
+              </thead>
+              <tbody id="income-rows"></tbody>
+              <tfoot id="income-foot"></tfoot>
+            </table>
+          </div>
+          <div class="empty-state" id="income-empty" hidden>
+            <div class="empty-mark" aria-hidden="true">收</div>
+            <h3>暂无收益记录</h3>
+            <p>当前筛选条件下没有流水，换一个时间段试试，或直接记一笔。</p>
+            <button class="btn btn-primary" type="button" data-action="add-income">记一笔收益</button>
+          </div>
+        </section>
+      </div>
+
+      <div id="event-view" hidden>
+        <div class="filter-bar" aria-label="事件筛选">
+          <label class="field field-inline">
+            <span>角色</span>
+            <select id="event-character"><option value="">全部角色</option></select>
+          </label>
+          <label class="field field-inline">
+            <span>类型</span>
+            <select id="event-type">
+              <option value="">全部类型</option>
+              <option value="奇遇">奇遇</option>
+              <option value="资历">资历</option>
+              <option value="其它">其它</option>
+            </select>
+          </label>
+          <label class="field field-inline">
+            <span>开始日期</span>
+            <input type="date" id="event-start">
+          </label>
+          <label class="field field-inline">
+            <span>结束日期</span>
+            <input type="date" id="event-end">
+          </label>
+          <button class="btn btn-quiet filter-reset" type="button" data-action="reset-event-filters">重置</button>
+        </div>
+
+        <section class="panel" aria-labelledby="event-list-title">
+          <div class="panel-head">
+            <div>
+              <h2 id="event-list-title">事件明细</h2>
+              <p class="panel-sub" id="event-list-subtitle">全部时间 · 0 条记录</p>
+            </div>
+            <button class="btn btn-secondary btn-small" type="button" data-action="add-event">＋ 新增事件</button>
+          </div>
+          <p class="table-scroll-hint">左右滑动表格，查看完整列</p>
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="col-date">日期</th>
+                  <th>角色</th>
+                  <th>类型</th>
+                  <th class="col-title">标题</th>
+                  <th class="col-number">数值</th>
+                  <th class="col-note">备注</th>
+                  <th class="col-actions">操作</th>
+                </tr>
+              </thead>
+              <tbody id="event-rows"></tbody>
+              <tfoot id="event-foot"></tfoot>
+            </table>
+          </div>
+          <div class="empty-state" id="event-empty" hidden>
+            <div class="empty-mark" aria-hidden="true">遇</div>
+            <h3>暂无事件记录</h3>
+            <p>奇遇、资历增量和其他值得记住的时刻，都可以记在这里。</p>
+            <button class="btn btn-primary" type="button" data-action="add-event">新增事件</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="view" id="view-settings" data-view="settings" role="tabpanel" aria-labelledby="tab-settings" hidden>
+      <div class="page-head">
+        <div class="page-head-copy">
+          <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>基础资料</p>
+          <h1>设置</h1>
+          <p class="page-desc">管理账号、角色、副本与事件类型。所有修改都会立即写入 D1。</p>
+        </div>
+      </div>
+
+      <div class="settings-grid settings-grid-top">
+        <section class="panel settings-panel" aria-labelledby="accounts-title">
+          <div class="panel-head">
+            <div>
+              <h2 id="accounts-title">账号管理</h2>
+              <p class="panel-sub">一个账号下可以放多个角色。</p>
+            </div>
+            <button class="btn btn-secondary btn-small" type="button" data-action="add-account">＋ 添加账号</button>
+          </div>
+          <div class="table-scroll">
+            <table class="data-table compact-table">
+              <thead>
+                <tr><th>账号</th><th>备注</th><th class="col-number">角色数</th><th class="col-actions">操作</th></tr>
+              </thead>
+              <tbody id="settings-account-rows"></tbody>
+            </table>
+          </div>
+          <div class="inline-empty" id="settings-account-empty" hidden>还没有账号，先添加一个。</div>
+        </section>
+
+        <section class="panel settings-panel" aria-labelledby="event-types-title">
+          <div class="panel-head">
+            <div>
+              <h2 id="event-types-title">事件类型</h2>
+              <p class="panel-sub">停用后不再出现在新增事件表单中。</p>
+            </div>
+          </div>
+          <div class="event-type-list" id="event-type-list"></div>
+          <div class="inline-empty" id="event-types-empty" hidden>事件类型尚未初始化，请执行 db/init.sql。</div>
+        </section>
+      </div>
+
+      <section class="panel settings-panel" aria-labelledby="characters-title">
+        <div class="panel-head">
+          <div>
+            <h2 id="characters-title">角色管理</h2>
+            <p class="panel-sub">停用角色会从总览中隐藏，但历史记录仍会保留。</p>
+          </div>
+          <button class="btn btn-secondary btn-small" type="button" data-action="add-character">＋ 添加角色</button>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>角色</th><th>所属账号</th><th>服务器 / 门派</th><th>状态</th><th class="col-note">备注</th><th class="col-actions">操作</th>
+              </tr>
+            </thead>
+            <tbody id="settings-character-rows"></tbody>
+          </table>
+        </div>
+        <div class="inline-empty" id="settings-character-empty" hidden>还没有角色。添加账号后，就可以创建角色。</div>
+      </section>
+
+      <section class="panel settings-panel" aria-labelledby="dungeons-title">
+        <div class="panel-head">
+          <div>
+            <h2 id="dungeons-title">副本管理</h2>
+            <p class="panel-sub">首领数量用于计算 CD 进度；排序值越小越靠前。</p>
+          </div>
+          <button class="btn btn-secondary btn-small" type="button" data-action="add-dungeon">＋ 添加副本</button>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>副本</th><th class="col-number">首领数</th><th class="col-number">排序</th><th>状态</th><th class="col-actions">操作</th>
+              </tr>
+            </thead>
+            <tbody id="settings-dungeon-rows"></tbody>
+          </table>
+        </div>
+        <div class="inline-empty" id="settings-dungeon-empty" hidden>还没有副本，执行 db/init.sql 可恢复预置副本。</div>
+      </section>
+
+      <section class="panel export-panel" aria-labelledby="export-title">
+        <div class="export-copy">
+          <h2 id="export-title">数据导出</h2>
+          <p>导出账号、角色、副本、事件类型与全部流水的 JSON 文件，可用于自行备份。</p>
+        </div>
+        <button class="btn btn-primary" type="button" data-action="export-data">导出全量 JSON</button>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><span class="footer-mark" aria-hidden="true"></span>数据仅存储在你的 Cloudflare D1</p>
+    <p class="footer-meta"><span id="footer-week"></span><span class="footer-sep">·</span><span>Cloudflare Access 保护</span></p>
+  </footer>
+
+  <div class="boot-screen" id="boot-screen">
+    <div class="boot-card">
+      <div class="boot-mark" aria-hidden="true"><span></span></div>
+      <p class="boot-kicker">剑网3 · 苍生铸世</p>
+      <h1>个人收益工作台</h1>
+      <p class="boot-message" id="boot-message">正在连接 Cloudflare D1…</p>
+      <button class="btn btn-secondary" type="button" id="boot-retry" hidden>重新连接</button>
+    </div>
+  </div>
+
+  <dialog class="modal" id="income-dialog" aria-labelledby="income-dialog-title">
+    <form class="modal-form" id="income-form" novalidate>
+      <div class="modal-head">
+        <div>
+          <p class="modal-kicker" id="income-dialog-kicker">NEW RECORD</p>
+          <h2 id="income-dialog-title">新增收益</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-dialog="income-dialog" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="income-id">
+        <div class="form-grid">
+          <label class="field">
+            <span>日期 <em>*</em></span>
+            <input type="date" id="income-date" required>
+          </label>
+          <label class="field">
+            <span>角色 <em>*</em></span>
+            <select id="income-form-character" required></select>
+          </label>
+          <label class="field">
+            <span>分类 <em>*</em></span>
+            <select id="income-form-category" required>
+              <option value="副本">副本</option>
+              <option value="阵营">阵营</option>
+              <option value="其它">其它</option>
+            </select>
+          </label>
+          <label class="field field-span-2">
+            <span>名称 <em>*</em></span>
+            <input type="text" id="income-form-title" maxlength="120" placeholder="例：英雄洛阳之战工资 / 阵营日常" required>
+          </label>
+          <div class="field">
+            <span>收入（金）</span>
+            <input type="number" id="income-form-income" min="0" step="0.01" inputmode="decimal" placeholder="0">
+          </div>
+          <div class="field">
+            <span>支出（金）</span>
+            <input type="number" id="income-form-expense" min="0" step="0.01" inputmode="decimal" placeholder="0">
+          </div>
+        </div>
+
+        <div class="net-preview" id="income-net-preview">
+          <span>自动计算净收益</span>
+          <strong id="income-net-value">0 金</strong>
+          <small>净收益 = 收入 − 支出</small>
+        </div>
+
+        <div class="dungeon-fields" id="income-dungeon-fields">
+          <div class="section-divider"><span>副本 CD</span></div>
+          <div class="form-grid">
+            <label class="field">
+              <span>副本</span>
+              <select id="income-form-dungeon">
+                <option value="">请选择副本</option>
+              </select>
+            </label>
+            <label class="field" id="income-custom-dungeon-field" hidden>
+              <span>手动填写副本名</span>
+              <input type="text" id="income-form-dungeon-name" maxlength="80" placeholder="例：其它五人本">
+            </label>
+            <label class="field">
+              <span>Boss 进度</span>
+              <input type="number" id="income-form-bosses" min="0" max="999" step="1" inputmode="numeric" placeholder="打了几个">
+              <small class="field-hint" id="income-boss-hint">选择副本后自动带出总首领数</small>
+            </label>
+          </div>
+        </div>
+
+        <label class="field">
+          <span>备注</span>
+          <textarea id="income-form-note" rows="3" maxlength="500" placeholder="可写工资构成、拍团支出等"></textarea>
+        </label>
+        <p class="form-error" id="income-form-error" role="alert" hidden></p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-quiet" type="button" data-close-dialog="income-dialog">取消</button>
+        <button class="btn btn-primary" type="submit" id="income-submit">保存收益</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="modal" id="event-dialog" aria-labelledby="event-dialog-title">
+    <form class="modal-form" id="event-form" novalidate>
+      <div class="modal-head">
+        <div>
+          <p class="modal-kicker" id="event-dialog-kicker">NEW EVENT</p>
+          <h2 id="event-dialog-title">新增事件</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-dialog="event-dialog" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="event-id">
+        <div class="form-grid">
+          <label class="field">
+            <span>日期 <em>*</em></span>
+            <input type="date" id="event-date" required>
+          </label>
+          <label class="field">
+            <span>角色 <em>*</em></span>
+            <select id="event-form-character" required></select>
+          </label>
+          <label class="field">
+            <span>类型 <em>*</em></span>
+            <select id="event-form-type" required></select>
+          </label>
+          <label class="field field-span-2">
+            <span>标题 <em>*</em></span>
+            <input type="text" id="event-form-title" maxlength="120" placeholder="例：护佑苍生 / 资历 14.5 万" required>
+          </label>
+          <label class="field field-span-2">
+            <span id="event-value-label">数值（可选）</span>
+            <input type="number" id="event-form-value" step="0.01" inputmode="decimal" placeholder="资历请填写本次增量">
+            <small class="field-hint" id="event-value-hint">资历类型会汇总所有增量。</small>
+          </label>
+        </div>
+        <label class="field">
+          <span>备注</span>
+          <textarea id="event-form-note" rows="3" maxlength="500" placeholder="可写触发方式、资历阶段等"></textarea>
+        </label>
+        <p class="form-error" id="event-form-error" role="alert" hidden></p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-quiet" type="button" data-close-dialog="event-dialog">取消</button>
+        <button class="btn btn-primary" type="submit" id="event-submit">保存事件</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="modal modal-small" id="account-dialog" aria-labelledby="account-dialog-title">
+    <form class="modal-form" id="account-form" novalidate>
+      <div class="modal-head">
+        <div>
+          <p class="modal-kicker">ACCOUNT</p>
+          <h2 id="account-dialog-title">添加账号</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-dialog="account-dialog" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="account-id">
+        <label class="field">
+          <span>账号名称 <em>*</em></span>
+          <input type="text" id="account-name" maxlength="80" placeholder="例：主账号 / 大号" required>
+        </label>
+        <label class="field">
+          <span>备注</span>
+          <textarea id="account-note" rows="3" maxlength="500" placeholder="可选"></textarea>
+        </label>
+        <p class="form-error" id="account-form-error" role="alert" hidden></p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-quiet" type="button" data-close-dialog="account-dialog">取消</button>
+        <button class="btn btn-primary" type="submit">保存账号</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="modal" id="character-dialog" aria-labelledby="character-dialog-title">
+    <form class="modal-form" id="character-form" novalidate>
+      <div class="modal-head">
+        <div>
+          <p class="modal-kicker">CHARACTER</p>
+          <h2 id="character-dialog-title">添加角色</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-dialog="character-dialog" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="character-id">
+        <div class="form-grid">
+          <label class="field">
+            <span>角色名 <em>*</em></span>
+            <input type="text" id="character-name" maxlength="60" placeholder="游戏内角色名" required>
+          </label>
+          <label class="field">
+            <span>所属账号 <em>*</em></span>
+            <select id="character-account" required></select>
+          </label>
+          <label class="field">
+            <span>服务器</span>
+            <input type="text" id="character-server" maxlength="60" placeholder="例：梦江南">
+          </label>
+          <label class="field">
+            <span>门派</span>
+            <input type="text" id="character-school" maxlength="40" placeholder="例：万花">
+          </label>
+        </div>
+        <label class="field checkbox-field">
+          <input type="checkbox" id="character-active" checked>
+          <span>启用此角色（停用后不显示在总览）</span>
+        </label>
+        <label class="field">
+          <span>备注</span>
+          <textarea id="character-note" rows="2" maxlength="500" placeholder="可选"></textarea>
+        </label>
+        <p class="form-error" id="character-form-error" role="alert" hidden></p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-quiet" type="button" data-close-dialog="character-dialog">取消</button>
+        <button class="btn btn-primary" type="submit">保存角色</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="modal modal-small" id="dungeon-dialog" aria-labelledby="dungeon-dialog-title">
+    <form class="modal-form" id="dungeon-form" novalidate>
+      <div class="modal-head">
+        <div>
+          <p class="modal-kicker">DUNGEON</p>
+          <h2 id="dungeon-dialog-title">添加副本</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-dialog="dungeon-dialog" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="dungeon-id">
+        <div class="form-grid">
+          <label class="field field-span-2">
+            <span>副本名称 <em>*</em></span>
+            <input type="text" id="dungeon-name" maxlength="80" placeholder="例：南山马场" required>
+          </label>
+          <label class="field">
+            <span>首领总数 <em>*</em></span>
+            <input type="number" id="dungeon-total" min="0" max="99" step="1" inputmode="numeric" required>
+          </label>
+          <label class="field">
+            <span>排序值</span>
+            <input type="number" id="dungeon-sort" min="0" max="99999" step="1" inputmode="numeric" value="100">
+          </label>
+        </div>
+        <label class="field checkbox-field">
+          <input type="checkbox" id="dungeon-active" checked>
+          <span>启用此副本（用于 CD 进度计算）</span>
+        </label>
+        <p class="form-error" id="dungeon-form-error" role="alert" hidden></p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-quiet" type="button" data-close-dialog="dungeon-dialog">取消</button>
+        <button class="btn btn-primary" type="submit">保存副本</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="modal modal-confirm" id="confirm-dialog" aria-labelledby="confirm-title">
+    <div class="confirm-body">
+      <p class="modal-kicker">PLEASE CONFIRM</p>
+      <h2 id="confirm-title">确认删除？</h2>
+      <p id="confirm-message">此操作无法撤销。</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-quiet" type="button" id="confirm-cancel">取消</button>
+      <button class="btn btn-danger" type="button" id="confirm-ok">确认删除</button>
+    </div>
+  </dialog>
+
+  <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="false"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script>
+(() => {
+  'use strict';
+
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+  const state = {
+    tab: 'overview',
+    incomeSubtab: 'income',
+    overviewFilter: 'all',
+    overviewRows: [],
+    summary: null,
+    accounts: [],
+    characters: [],
+    dungeons: [],
+    eventTypes: [],
+    incomeRecords: [],
+    eventRecords: [],
+    incomeFilters: { character_id: '', category: '', start: '', end: '' },
+    eventFilters: { character_id: '', type: '', start: '', end: '' },
+    trend: {
+      mode: 'month',
+      month: shanghaiToday().slice(0, 7),
+      data: null,
+    },
+    overviewChart: null,
+    trendChart: null,
+    me: null,
+    bootAttempts: 0,
+    bootTimer: null,
+    booting: false,
+    refreshToken: 0,
+    confirmResolver: null,
+    overviewFrame: null,
+    trendFrame: null,
+  };
+
+  const MAX_BOOT_ATTEMPTS = 8;
+  const TITLE_SUFFIX = '剑网3 个人收益工作台';
+
+  function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    }[char]));
+  }
+
+  function shanghaiToday() {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Shanghai',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(new Date());
+    const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    return `${values.year}-${values.month}-${values.day}`;
+  }
+
+  function round2(value) {
+    return Math.round((Number(value) || 0) * 100) / 100;
+  }
+
+  function formatNumber(value) {
+    const n = Number(value) || 0;
+    return new Intl.NumberFormat('zh-CN', {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+    }).format(n);
+  }
+
+  function formatAxis(value) {
+    const n = Number(value) || 0;
+    if (Math.abs(n) >= 10000) return `${formatNumber(n / 10000)}万`;
+    return formatNumber(n);
+  }
+
+  function formatDate(date) {
+    return date || '—';
+  }
+
+  function shortDate(date) {
+    if (!date) return '';
+    const parts = date.split('-');
+    if (parts.length !== 3) return date;
+    return `${Number(parts[1])}.${String(parts[2]).padStart(2, '0')}`;
+  }
+
+  function monthLabel(month) {
+    if (!month) return '';
+    const [year, m] = month.split('-');
+    return `${year} 年 ${Number(m)} 月`;
+  }
+
+  function weekNumber(date) {
+    const [y, m, d] = date.split('-').map(Number);
+    const target = new Date(Date.UTC(y, m - 1, d));
+    const day = (target.getUTCDay() + 6) % 7;
+    target.setUTCDate(target.getUTCDate() - day + 3);
+    const firstThursday = new Date(Date.UTC(target.getUTCFullYear(), 0, 4));
+    const firstDay = (firstThursday.getUTCDay() + 6) % 7;
+    firstThursday.setUTCDate(firstThursday.getUTCDate() - firstDay + 3);
+    return 1 + Math.round((target - firstThursday) / (7 * 24 * 60 * 60 * 1000));
+  }
+
+  function weekText(start, end) {
+    if (!start || !end) return '本周';
+    return `第 ${weekNumber(start)} 周 · ${shortDate(start)} — ${shortDate(end)}`;
+  }
+
+  function timeRangeText(start, end) {
+    if (start && end) return `${start} 至 ${end}`;
+    if (start) return `${start} 起`;
+    if (end) return `截至 ${end}`;
+    return '全部时间';
+  }
+
+  function firstChar(name) {
+    return Array.from(String(name || '角').trim())[0] || '角';
+  }
+
+  async function api(path, options = {}) {
+    let response;
+    try {
+      response = await fetch(path, {
+        cache: 'no-store',
+        ...options,
+        headers: {
+          Accept: 'application/json',
+          ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+          ...(options.headers || {}),
+        },
+      });
+    } catch {
+      throw new Error('无法连接 API，请检查网络或稍后刷新。');
+    }
+
+    const raw = await response.text();
+    let payload = null;
+    try {
+      payload = raw ? JSON.parse(raw) : null;
+    } catch {
+      payload = null;
+    }
+
+    if (!response.ok) {
+      let message = payload?.error;
+      if (!message && response.status === 404) {
+        message = 'API 尚未就绪（HTTP 404）。部署后 /api 路由可能需要 30～60 秒才可用。';
+      }
+      if (!message) message = `请求失败（HTTP ${response.status}）。`;
+      const error = new Error(message);
+      error.status = response.status;
+      throw error;
+    }
+
+    if (!payload || payload.ok !== true) throw new Error('API 返回格式异常，请稍后刷新。');
+    return payload.data;
+  }
+
+  function mutation(path, method, body) {
+    return api(path, { method, body: JSON.stringify(body) });
+  }
+
+  function showToast(message, type = '') {
+    const region = $('#toast-region');
+    if (!region) return;
+    const toast = document.createElement('div');
+    toast.className = `toast${type ? ` is-${type}` : ''}`;
+    toast.textContent = message;
+    region.appendChild(toast);
+    window.setTimeout(() => toast.remove(), 4200);
+  }
+
+  function setButtonBusy(button, busy, busyText = '处理中…') {
+    if (!button) return;
+    if (busy) {
+      if (!button.dataset.originalLabel) button.dataset.originalLabel = button.textContent.trim();
+      button.disabled = true;
+      button.textContent = busyText;
+    } else {
+      button.disabled = false;
+      if (button.dataset.originalLabel) {
+        button.textContent = button.dataset.originalLabel;
+        delete button.dataset.originalLabel;
+      }
+    }
+  }
+
+  function openDialog(id) {
+    const dialog = document.getElementById(id);
+    if (!dialog) return;
+    if (!dialog.open) dialog.showModal();
+  }
+
+  function closeDialog(id) {
+    const dialog = document.getElementById(id);
+    if (dialog?.open) dialog.close();
+  }
+
+  function setFormError(id, message) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = message || '';
+    el.hidden = !message;
+  }
+
+  function askConfirm({ title, message, okText = '确认删除', danger = true }) {
+    if (state.confirmResolver) {
+      state.confirmResolver(false);
+      state.confirmResolver = null;
+    }
+    $('#confirm-title').textContent = title;
+    $('#confirm-message').textContent = message;
+    const ok = $('#confirm-ok');
+    ok.textContent = okText;
+    ok.className = danger ? 'btn btn-danger' : 'btn btn-primary';
+    const dialog = $('#confirm-dialog');
+    if (!dialog.open) dialog.showModal();
+    return new Promise((resolve) => {
+      state.confirmResolver = resolve;
+    });
+  }
+
+  function settleConfirm(value) {
+    const resolver = state.confirmResolver;
+    state.confirmResolver = null;
+    const dialog = $('#confirm-dialog');
+    if (dialog.open) dialog.close();
+    if (resolver) resolver(value);
+  }
+
+  async function fetchCore() {
+    const [me, accounts, characters, dungeons, eventTypes, summary] = await Promise.all([
+      api('/api/me'),
+      api('/api/accounts'),
+      api('/api/characters'),
+      api('/api/dungeons'),
+      api('/api/event-types'),
+      api('/api/summary'),
+    ]);
+    return { me, accounts, characters, dungeons, eventTypes, summary };
+  }
+
+  function incomeQuery() {
+    const params = new URLSearchParams();
+    const { character_id, category, start, end } = state.incomeFilters;
+    if (character_id) params.set('character_id', character_id);
+    if (category) params.set('category', category);
+    if (start) params.set('start', start);
+    if (end) params.set('end', end);
+    const query = params.toString();
+    return `/api/income-records${query ? `?${query}` : ''}`;
+  }
+
+  function eventQuery() {
+    const params = new URLSearchParams();
+    const { character_id, type, start, end } = state.eventFilters;
+    if (character_id) params.set('character_id', character_id);
+    if (type) params.set('type', type);
+    if (start) params.set('start', start);
+    if (end) params.set('end', end);
+    const query = params.toString();
+    return `/api/event-records${query ? `?${query}` : ''}`;
+  }
+
+  function trendQuery() {
+    const params = new URLSearchParams();
+    params.set('mode', state.trend.mode);
+    if (state.trend.mode === 'month') params.set('month', state.trend.month);
+    return `/api/trend?${params.toString()}`;
+  }
+
+  const fetchIncomeRecords = () => api(incomeQuery());
+  const fetchEventRecords = () => api(eventQuery());
+  const fetchTrend = () => api(trendQuery());
+
+  function applyCore(core) {
+    state.me = core.me;
+    state.accounts = core.accounts || [];
+    state.characters = core.characters || [];
+    state.dungeons = core.dungeons || [];
+    state.eventTypes = core.eventTypes || [];
+    state.summary = core.summary;
+    hydrateFilterSelects();
+    renderIdentity();
+    renderFooter();
+    renderSettings();
+    renderOverview();
+  }
+
+  async function loadInitialData() {
+    const [core, incomeRecords, eventRecords, trend] = await Promise.all([
+      fetchCore(),
+      fetchIncomeRecords(),
+      fetchEventRecords(),
+      fetchTrend(),
+    ]);
+    applyCore(core);
+    state.incomeRecords = incomeRecords || [];
+    state.eventRecords = eventRecords || [];
+    state.trend.data = trend;
+    renderIncome();
+    renderEventRecords();
+    renderTrend();
+  }
+
+  async function refreshAfterChange({ quiet = false } = {}) {
+    const token = ++state.refreshToken;
+    try {
+      const core = await fetchCore();
+      if (token !== state.refreshToken) return true;
+      applyCore(core);
+      const [incomeRecords, eventRecords, trend] = await Promise.all([
+        fetchIncomeRecords(),
+        fetchEventRecords(),
+        fetchTrend(),
+      ]);
+      if (token !== state.refreshToken) return true;
+      state.incomeRecords = incomeRecords || [];
+      state.eventRecords = eventRecords || [];
+      state.trend.data = trend;
+      renderIncome();
+      renderEventRecords();
+      renderTrend();
+      return true;
+    } catch (error) {
+      if (!quiet) showToast(`刷新失败：${error.message}`, 'error');
+      return false;
+    }
+  }
+
+  function setSelectOptions(select, placeholder, options, selected) {
+    if (!select) return;
+    select.innerHTML = [
+      `<option value="">${escapeHTML(placeholder)}</option>`,
+      ...options.map((option) => `<option value="${escapeHTML(option.value)}">${escapeHTML(option.label)}</option>`),
+    ].join('');
+    select.value = selected ?? '';
+  }
+
+  function characterOptionList({ includeInactive = true, currentId = null } = {}) {
+    return state.characters
+      .filter((character) => includeInactive || character.active || character.id === currentId)
+      .map((character) => ({
+        value: String(character.id),
+        label: [
+          character.name,
+          character.server ? `（${character.server}）` : '',
+          character.active ? '' : ' · 已停用',
+        ].join(''),
+      }));
+  }
+
+  function hydrateFilterSelects() {
+    const incomeCharacter = $('#income-character');
+    const eventCharacter = $('#event-character');
+    const currentIncome = state.incomeFilters.character_id;
+    const currentEvent = state.eventFilters.character_id;
+    const options = characterOptionList({ includeInactive: true });
+    setSelectOptions(incomeCharacter, '全部角色', options, currentIncome);
+    setSelectOptions(eventCharacter, '全部角色', options, currentEvent);
+    state.incomeFilters.character_id = incomeCharacter.value;
+    state.eventFilters.character_id = eventCharacter.value;
+  }
+
+  function renderIdentity() {
+    const badge = $('#access-badge');
+    const emailEl = $('#access-email');
+    if (!badge || !emailEl) return;
+    badge.hidden = false;
+    if (state.me?.email) {
+      badge.classList.remove('is-warning');
+      badge.querySelector('.access-label').textContent = 'Cloudflare Access';
+      emailEl.textContent = state.me.email;
+      badge.title = '已通过 Cloudflare Access 验证';
+    } else {
+      badge.classList.add('is-warning');
+      badge.querySelector('.access-label').textContent = '本地 / 未验证';
+      emailEl.textContent = '未检测到 Access 邮箱';
+      badge.title = '未检测到 Cloudflare Access 身份头；生产环境请检查 Access 应用是否覆盖当前域名。';
+    }
+  }
+
+  function renderFooter() {
+    if (!state.summary) return;
+    const text = weekText(state.summary.week_start, state.summary.week_end);
+    $('#footer-week').textContent = text;
+    $('#overview-week').textContent = text;
+    $('#overview-note').textContent = '本周周期按北京时间（周一至周日）计算，CD 进度取本周记录中的最高值。';
+  }
+
+  function filteredOverviewRows() {
+    const rows = state.summary?.characters || [];
+    if (state.overviewFilter === 'recorded') return rows.filter((row) => row.has_records);
+    if (state.overviewFilter === 'uncleared') return rows.filter((row) => !row.all_cleared);
+    return rows;
+  }
+
+  function renderOverview() {
+    if (!state.summary) return;
+    const allRows = state.summary.characters || [];
+    const recorded = allRows.filter((row) => row.has_records);
+    const uncleared = allRows.filter((row) => !row.all_cleared);
+    const rows = filteredOverviewRows();
+
+    $('#count-all').textContent = allRows.length;
+    $('#count-recorded').textContent = recorded.length;
+    $('#count-uncleared').textContent = uncleared.length;
+    $('#overview-count').textContent = `${rows.length} 个角色`;
+    $('#overview-subtitle').textContent = allRows.length
+      ? `${weekText(state.summary.week_start, state.summary.week_end)} · 共 ${allRows.length} 个启用角色`
+      : '还没有启用角色';
+
+    $$('#overview-filter .segment').forEach((button) => {
+      const active = button.dataset.filter === state.overviewFilter;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+
+    const tbody = $('#overview-rows');
+    const tfoot = $('#overview-foot');
+    const tableScroll = tbody.closest('.table-scroll');
+    const empty = $('#overview-empty');
+    const emptyTitle = empty.querySelector('h3');
+    const emptyCopy = $('#overview-empty-copy');
+    const emptyButton = empty.querySelector('.btn');
+
+    if (!rows.length) {
+      tbody.innerHTML = '';
+      tfoot.innerHTML = '';
+      tableScroll.hidden = true;
+      empty.hidden = false;
+      if (!allRows.length) {
+        emptyTitle.textContent = state.characters.length ? '还没有启用角色' : '还没有可展示的角色';
+        emptyCopy.textContent = state.characters.length
+          ? '角色都处于停用状态。到设置里启用至少一个角色，就会重新出现在总览。'
+          : '先到设置里添加账号与角色，再回来记录本周收益。';
+        emptyButton.textContent = '前往设置';
+        emptyButton.dataset.action = 'go-tab';
+        emptyButton.dataset.tab = 'settings';
+        delete emptyButton.dataset.filter;
+      } else {
+        emptyTitle.textContent = '当前筛选下没有角色';
+        emptyCopy.textContent = state.overviewFilter === 'recorded'
+          ? '本周还没有任何收益或事件记录。记一笔后再回来看看。'
+          : '当前所有启用角色的本周 CD 都已清完。';
+        emptyButton.textContent = '显示全部角色';
+        emptyButton.dataset.action = 'overview-filter';
+        emptyButton.dataset.filter = 'all';
+        delete emptyButton.dataset.tab;
+      }
+      state.overviewRows = [];
+      renderOverviewChart();
+      return;
+    }
+
+    tableScroll.hidden = false;
+    empty.hidden = true;
+    tbody.innerHTML = rows.map((row) => {
+      const netClass = row.week_net > 0 ? 'is-positive' : row.week_net < 0 ? 'is-negative' : 'is-muted';
+      const cdHtml = row.dungeon_progress.length
+        ? `<div class="cd-grid">${row.dungeon_progress.map((dungeon) => {
+          const percent = dungeon.total_bosses > 0
+            ? Math.min(100, Math.round((dungeon.bosses_done / dungeon.total_bosses) * 100))
+            : 0;
+          const classes = ['cd-item', dungeon.cleared ? 'is-clear' : '', dungeon.bosses_done === 0 ? 'is-empty' : ''].filter(Boolean).join(' ');
+          return `<div class="${classes}" title="${escapeHTML(dungeon.name)} ${dungeon.bosses_done}/${dungeon.total_bosses}">
+            <div class="cd-line">
+              <span class="cd-name">${escapeHTML(dungeon.name)}</span>
+              <span class="cd-frac">${dungeon.bosses_done}/${dungeon.total_bosses}</span>
+            </div>
+            <div class="cd-track"><span style="width:${percent}%"></span></div>
+          </div>`;
+        }).join('')}</div>`
+        : '<span class="cd-placeholder">未配置启用副本</span>';
+
+      const eventHtml = row.last_event
+        ? `<div class="event-cell">
+            <div class="event-line">
+              <span class="event-type">${escapeHTML(row.last_event.type)}</span>
+              <span class="event-date">${escapeHTML(shortDate(row.last_event.date))}</span>
+            </div>
+            <span class="event-title" title="${escapeHTML(row.last_event.title)}">${escapeHTML(row.last_event.title)}</span>
+          </div>`
+        : '<span class="no-event">暂无事件</span>';
+
+      const meta = [row.server, row.school].filter(Boolean).join(' · ') || '未填写服务器';
+      return `<tr>
+        <td>
+          <div class="character-cell">
+            <span class="avatar">${escapeHTML(firstChar(row.name))}</span>
+            <div class="cell-stack">
+              <span class="cell-main" title="${escapeHTML(row.name)}">${escapeHTML(row.name)}</span>
+              <span class="cell-sub">${escapeHTML(meta)}</span>
+            </div>
+          </div>
+        </td>
+        <td><span class="account-name">${escapeHTML(row.account_name)}</span></td>
+        <td>${cdHtml}</td>
+        <td class="col-number">
+          <div class="cell-stack">
+            <span class="money ${netClass}">${formatNumber(row.week_net)}<span class="money-unit">金</span></span>
+            <span class="cell-sub">收 ${formatNumber(row.week_income)} · 支 ${formatNumber(row.week_expense)}</span>
+          </div>
+        </td>
+        <td>${eventHtml}</td>
+      </tr>`;
+    }).join('');
+
+    const totals = rows.reduce((acc, row) => {
+      acc.net = round2(acc.net + row.week_net);
+      acc.income = round2(acc.income + row.week_income);
+      acc.expense = round2(acc.expense + row.week_expense);
+      if (row.all_cleared) acc.cleared += 1;
+      if (!row.all_cleared) acc.uncleared += 1;
+      return acc;
+    }, { net: 0, income: 0, expense: 0, cleared: 0, uncleared: 0 });
+
+    const totalClass = totals.net > 0 ? 'is-positive' : totals.net < 0 ? 'is-negative' : '';
+    tfoot.innerHTML = `<tr>
+      <td colspan="3">
+        <div class="tfoot-split">
+          <strong>本周合计</strong>
+          <span class="tfoot-meta">当前筛选 · ${rows.length} 个角色</span>
+        </div>
+      </td>
+      <td class="col-number">
+        <div class="cell-stack">
+          <span class="money total-net ${totalClass}">${formatNumber(totals.net)}<span class="money-unit">金</span></span>
+          <span class="cell-sub">收 ${formatNumber(totals.income)} · 支 ${formatNumber(totals.expense)}</span>
+        </div>
+      </td>
+      <td>
+        <div class="tfoot-split">
+          <span>已清 CD <strong>${totals.cleared}</strong> 人</span>
+          <span>未清 <strong>${totals.uncleared}</strong> 人</span>
+        </div>
+      </td>
+    </tr>`;
+
+    state.overviewRows = rows;
+    renderOverviewChart();
+  }
+
+  function chartFontFamily() {
+    return getComputedStyle(document.body).fontFamily;
+  }
+
+  function setupChartDefaults() {
+    if (!window.Chart) return;
+    window.Chart.defaults.font.family = chartFontFamily();
+    window.Chart.defaults.font.size = 11;
+    window.Chart.defaults.color = '#748078';
+  }
+
+  function renderOverviewChart() {
+    const canvas = $('#overview-chart');
+    const empty = $('#overview-chart-empty');
+    const frame = $('#overview-chart-frame');
+    if (!canvas || !empty || !frame) return;
+
+    const rows = state.overviewRows.filter((row) => row.income_count > 0);
+    const emptyTitle = empty.querySelector('p');
+    const emptyCopy = empty.querySelector('span');
+
+    if (!rows.length || !window.Chart) {
+      if (state.overviewChart) {
+        state.overviewChart.destroy();
+        state.overviewChart = null;
+      }
+      canvas.hidden = true;
+      empty.hidden = false;
+      frame.style.height = '300px';
+      if (!window.Chart) {
+        emptyTitle.textContent = '图表组件未加载';
+        emptyCopy.textContent = '请检查 Chart.js CDN（cdn.jsdelivr.net）是否可以正常访问。';
+      } else {
+        emptyTitle.textContent = '本周还没有收益记录';
+        emptyCopy.textContent = '记下第一笔收益后，这里会自动生成对比图。';
+      }
+      return;
+    }
+
+    empty.hidden = true;
+    canvas.hidden = false;
+    frame.style.height = `${Math.min(620, Math.max(300, 72 + rows.length * 42))}px`;
+
+    if (state.tab !== 'overview') return;
+    if (state.overviewFrame) cancelAnimationFrame(state.overviewFrame);
+    state.overviewFrame = requestAnimationFrame(() => {
+      if (state.tab !== 'overview' || !state.overviewRows.length) return;
+      const sorted = [...state.overviewRows]
+        .filter((row) => row.income_count > 0)
+        .sort((a, b) => b.week_net - a.week_net);
+      if (!sorted.length) return;
+
+      const nameCounts = new Map();
+      sorted.forEach((row) => nameCounts.set(row.name, (nameCounts.get(row.name) || 0) + 1));
+      const labels = sorted.map((row) => (
+        nameCounts.get(row.name) > 1 && row.server ? `${row.name} · ${row.server}` : row.name
+      ));
+
+      if (state.overviewChart) state.overviewChart.destroy();
+      state.overviewChart = new window.Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            data: sorted.map((row) => row.week_net),
+            backgroundColor: sorted.map((row) => (row.week_net < 0 ? 'rgba(176, 75, 64, 0.82)' : 'rgba(31, 91, 79, 0.82)')),
+            hoverBackgroundColor: sorted.map((row) => (row.week_net < 0 ? '#b04b40' : '#1f5b4f')),
+            borderRadius: 4,
+            borderSkipped: false,
+            barThickness: 15,
+          }],
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          layout: { padding: { top: 2, right: 14, bottom: 0, left: 0 } },
+          scales: {
+            x: {
+              beginAtZero: true,
+              border: { display: false },
+              grid: { color: '#eee9dd', drawTicks: false },
+              ticks: { padding: 8, maxTicksLimit: 7, font: { size: 10 }, callback: (value) => formatAxis(value) },
+            },
+            y: {
+              border: { display: false },
+              grid: { display: false },
+              ticks: { padding: 8, font: { size: 11 }, color: '#43524b' },
+            },
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#202a25',
+              titleColor: '#fffdf8',
+              bodyColor: '#f3efe4',
+              padding: 11,
+              cornerRadius: 8,
+              displayColors: false,
+              titleFont: { size: 12, weight: '600' },
+              bodyFont: { size: 11 },
+              callbacks: {
+                label: (context) => `净收益 ${formatNumber(sorted[context.dataIndex].week_net)} 金`,
+                afterBody: (items) => {
+                  const row = sorted[items[0].dataIndex];
+                  return [
+                    `收入 ${formatNumber(row.week_income)} 金`,
+                    `支出 ${formatNumber(row.week_expense)} 金`,
+                    `账号 ${row.account_name}`,
+                  ];
+                },
+              },
+            },
+          },
+        },
+      });
+    });
+  }
+
+  function categoryTag(category) {
+    const map = { 副本: 'tag-dungeon', 阵营: 'tag-faction', 其它: 'tag-other' };
+    return `<span class="tag ${map[category] || 'tag-other'}">${escapeHTML(category)}</span>`;
+  }
+
+  function eventTag(type) {
+    const map = { 奇遇: 'tag-event-qiyu', 资历: 'tag-event-zili', 其它: 'tag-event-other' };
+    return `<span class="tag ${map[type] || 'tag-event-other'}">${escapeHTML(type)}</span>`;
+  }
+
+  function renderIncome() {
+    const tbody = $('#income-rows');
+    const tfoot = $('#income-foot');
+    const tableScroll = tbody.closest('.table-scroll');
+    const empty = $('#income-empty');
+    const records = state.incomeRecords || [];
+    const { character_id, category, start, end } = state.incomeFilters;
+    const character = state.characters.find((item) => String(item.id) === String(character_id));
+    const summaryParts = [
+      character ? character.name : '全部角色',
+      category || '全部分类',
+      timeRangeText(start, end),
+      `${records.length} 条`,
+    ];
+    $('#income-list-subtitle').textContent = summaryParts.join(' · ');
+
+    if (!records.length) {
+      tbody.innerHTML = '';
+      tfoot.innerHTML = '';
+      tableScroll.hidden = true;
+      empty.hidden = false;
+      return;
+    }
+
+    tableScroll.hidden = false;
+    empty.hidden = true;
+    tbody.innerHTML = records.map((record) => {
+      const netClass = record.net > 0 ? 'is-positive' : record.net < 0 ? 'is-negative' : 'is-muted';
+      const bossLine = record.category === '副本' && record.dungeon_name
+        ? `<div class="boss-line">
+            <span class="boss-badge ${record.bosses_done !== null && record.dungeon_total_bosses && record.bosses_done >= record.dungeon_total_bosses ? 'is-clear' : ''}">
+              ${escapeHTML(record.dungeon_name)}${record.bosses_done !== null ? ` · Boss ${record.bosses_done}${record.dungeon_total_bosses ? `/${record.dungeon_total_bosses}` : ''}` : ''}
+            </span>
+          </div>`
+        : '';
+      return `<tr>
+        <td class="col-date">${escapeHTML(formatDate(record.date))}</td>
+        <td>
+          <div class="cell-stack">
+            <span class="cell-main">${escapeHTML(record.character_name)}</span>
+            <span class="cell-sub">${escapeHTML(record.account_name || '')}</span>
+          </div>
+        </td>
+        <td>${categoryTag(record.category)}</td>
+        <td class="col-title">
+          <div class="cell-stack">
+            <span class="cell-main">${escapeHTML(record.title)}</span>
+            ${bossLine}
+          </div>
+        </td>
+        <td class="col-number"><span class="money">${formatNumber(record.income)}</span></td>
+        <td class="col-number"><span class="money ${record.expense > 0 ? 'is-negative' : 'is-muted'}">${formatNumber(record.expense)}</span></td>
+        <td class="col-number"><span class="money ${netClass}">${formatNumber(record.net)}</span></td>
+        <td class="col-note">${record.note ? `<span class="note-text" title="${escapeHTML(record.note)}">${escapeHTML(record.note)}</span>` : '<span class="no-event">—</span>'}</td>
+        <td class="col-actions">
+          <div class="row-actions">
+            <button class="link-button" type="button" data-action="edit-income" data-id="${Number(record.id)}">编辑</button>
+            <button class="link-button is-danger" type="button" data-action="delete-income" data-id="${Number(record.id)}">删除</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+
+    const totals = records.reduce((acc, record) => {
+      acc.income = round2(acc.income + Number(record.income || 0));
+      acc.expense = round2(acc.expense + Number(record.expense || 0));
+      acc.net = round2(acc.net + Number(record.net || 0));
+      return acc;
+    }, { income: 0, expense: 0, net: 0 });
+    const totalClass = totals.net > 0 ? 'is-positive' : totals.net < 0 ? 'is-negative' : '';
+
+    tfoot.innerHTML = `<tr>
+      <td colspan="4"><span class="summary-label">合计 · ${records.length} 条</span></td>
+      <td class="col-number">${formatNumber(totals.income)}</td>
+      <td class="col-number">${formatNumber(totals.expense)}</td>
+      <td class="col-number"><span class="money total-net ${totalClass}">${formatNumber(totals.net)}<span class="money-unit">金</span></span></td>
+      <td colspan="2" class="tfoot-meta">${escapeHTML(timeRangeText(start, end))}</td>
+    </tr>`;
+  }
+
+  function renderEventRecords() {
+    const tbody = $('#event-rows');
+    const tfoot = $('#event-foot');
+    const tableScroll = tbody.closest('.table-scroll');
+    const empty = $('#event-empty');
+    const records = state.eventRecords || [];
+    const { character_id, type, start, end } = state.eventFilters;
+    const character = state.characters.find((item) => String(item.id) === String(character_id));
+    const summaryParts = [
+      character ? character.name : '全部角色',
+      type || '全部类型',
+      timeRangeText(start, end),
+      `${records.length} 条`,
+    ];
+    $('#event-list-subtitle').textContent = summaryParts.join(' · ');
+
+    if (!records.length) {
+      tbody.innerHTML = '';
+      tfoot.innerHTML = '';
+      tableScroll.hidden = true;
+      empty.hidden = false;
+      return;
+    }
+
+    tableScroll.hidden = false;
+    empty.hidden = true;
+    tbody.innerHTML = records.map((record) => `<tr>
+      <td class="col-date">${escapeHTML(formatDate(record.date))}</td>
+      <td>
+        <div class="cell-stack">
+          <span class="cell-main">${escapeHTML(record.character_name)}</span>
+          <span class="cell-sub">${escapeHTML(record.account_name || '')}</span>
+        </div>
+      </td>
+      <td>${eventTag(record.type)}</td>
+      <td class="col-title"><span class="cell-main">${escapeHTML(record.title)}</span></td>
+      <td class="col-number">${record.value === null || record.value === undefined ? '<span class="no-event">—</span>' : `<span class="money">${formatNumber(record.value)}</span>`}</td>
+      <td class="col-note">${record.note ? `<span class="note-text" title="${escapeHTML(record.note)}">${escapeHTML(record.note)}</span>` : '<span class="no-event">—</span>'}</td>
+      <td class="col-actions">
+        <div class="row-actions">
+          <button class="link-button" type="button" data-action="edit-event" data-id="${Number(record.id)}">编辑</button>
+          <button class="link-button is-danger" type="button" data-action="delete-event" data-id="${Number(record.id)}">删除</button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+    const totals = records.reduce((acc, record) => {
+      acc.shili = round2(acc.shili + (record.type === '资历' ? Number(record.value || 0) : 0));
+      acc.qiyu += record.type === '奇遇' ? 1 : 0;
+      acc.zili += record.type === '资历' ? 1 : 0;
+      acc.other += record.type === '其它' ? 1 : 0;
+      return acc;
+    }, { shili: 0, qiyu: 0, zili: 0, other: 0 });
+
+    tfoot.innerHTML = `<tr>
+      <td colspan="4"><span class="summary-label">合计 · ${records.length} 条</span></td>
+      <td class="col-number"><span class="money total-net">${formatNumber(totals.shili)}<span class="money-unit">点</span></span></td>
+      <td colspan="2" class="tfoot-meta">资历增量 · 奇遇 ${totals.qiyu} · 资历 ${totals.zili} · 其它 ${totals.other}</td>
+    </tr>`;
+  }
+
+  function trendVisibleDays(data) {
+    if (!data) return [];
+    if (data.mode !== 'month' || data.month !== shanghaiToday().slice(0, 7)) return data.days;
+    const today = shanghaiToday();
+    const visible = data.days.filter((day) => day.date <= today);
+    return visible.length ? visible : data.days.slice(0, 1);
+  }
+
+  function renderTrend() {
+    const data = state.trend.data;
+    const canvas = $('#trend-chart');
+    const empty = $('#trend-empty');
+    const modeLabel = state.trend.mode === 'week' ? '本周' : monthLabel(state.trend.month);
+    const currentMonth = state.trend.mode === 'month' && state.trend.month === shanghaiToday().slice(0, 7);
+    const subtitle = state.trend.mode === 'week'
+      ? `本周每日净收益${data ? ` · ${data.start} 至 ${data.end}` : ''}`
+      : `${modeLabel} · 每日净收益${currentMonth ? ` · 截至 ${shortDate(shanghaiToday())}` : ''}`;
+    $('#trend-subtitle').textContent = subtitle;
+
+    $$('#trend-mode .segment').forEach((button) => {
+      const active = button.dataset.mode === state.trend.mode;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    const monthInput = $('#trend-month');
+    monthInput.value = state.trend.month;
+    monthInput.disabled = state.trend.mode === 'week';
+    $('#trend-month-wrap').title = state.trend.mode === 'week' ? '查看本周时不使用月份选择' : '切换历史月份';
+
+    if (!data) {
+      $('#trend-net').textContent = '0';
+      $('#trend-income').textContent = '0';
+      $('#trend-expense').textContent = '0';
+      $('#trend-count').textContent = '0';
+      canvas.hidden = true;
+      empty.hidden = false;
+      $('#trend-empty-title').textContent = '本月暂无记录';
+      return;
+    }
+
+    $('#trend-net').textContent = formatNumber(data.totals.net);
+    $('#trend-income').textContent = formatNumber(data.totals.income);
+    $('#trend-expense').textContent = formatNumber(data.totals.expense);
+    $('#trend-count').textContent = formatNumber(data.totals.record_count);
+
+    if (data.empty || !window.Chart) {
+      if (state.trendChart) {
+        state.trendChart.destroy();
+        state.trendChart = null;
+      }
+      canvas.hidden = true;
+      empty.hidden = false;
+      $('#trend-empty-title').textContent = !window.Chart
+        ? '图表组件未加载'
+        : (state.trend.mode === 'week' ? '本周暂无记录' : '本月暂无记录');
+      return;
+    }
+
+    empty.hidden = true;
+    canvas.hidden = false;
+    if (state.tab !== 'income') return;
+    if (state.trendFrame) cancelAnimationFrame(state.trendFrame);
+    state.trendFrame = requestAnimationFrame(() => {
+      if (state.tab !== 'income' || !state.trend.data || state.trend.data.empty) return;
+      buildTrendChart();
+    });
+  }
+
+  function buildTrendChart() {
+    const data = state.trend.data;
+    const canvas = $('#trend-chart');
+    if (!data || !canvas || !window.Chart) return;
+    const days = trendVisibleDays(data);
+    const labels = data.mode === 'week'
+      ? days.map((day) => `周${day.weekday}`)
+      : days.map((day) => day.label);
+
+    if (state.trendChart) state.trendChart.destroy();
+    state.trendChart = new window.Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          data: days.map((day) => day.net),
+          borderColor: '#1f5b4f',
+          backgroundColor: 'rgba(31, 91, 79, 0.075)',
+          borderWidth: 1.8,
+          fill: true,
+          tension: 0.24,
+          pointRadius: days.length <= 2 ? 4 : 0,
+          pointBackgroundColor: '#1f5b4f',
+          pointBorderColor: '#fffdf8',
+          pointBorderWidth: 2,
+          pointHoverRadius: 4,
+          pointHoverBackgroundColor: '#1f5b4f',
+          pointHitRadius: 14,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        interaction: { mode: 'index', intersect: false },
+        layout: { padding: { top: 8, right: 14, bottom: 0, left: 0 } },
+        scales: {
+          x: {
+            border: { display: false },
+            grid: { display: false },
+            ticks: { autoSkip: true, maxTicksLimit: 12, maxRotation: 0, font: { size: 10 }, padding: 8 },
+          },
+          y: {
+            beginAtZero: true,
+            border: { display: false },
+            grid: { color: '#eee9dd', drawTicks: false },
+            ticks: { padding: 8, maxTicksLimit: 6, font: { size: 10 }, callback: (value) => formatAxis(value) },
+          },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#202a25',
+            titleColor: '#fffdf8',
+            bodyColor: '#f3efe4',
+            padding: 11,
+            cornerRadius: 8,
+            displayColors: false,
+            titleFont: { size: 12, weight: '600' },
+            bodyFont: { size: 11 },
+            callbacks: {
+              title: (items) => {
+                const day = days[items[0].dataIndex];
+                return day ? `${day.date} 周${day.weekday}` : '';
+              },
+              label: (context) => `净收益 ${formatNumber(days[context.dataIndex].net)} 金`,
+              afterBody: (items) => {
+                const day = days[items[0].dataIndex];
+                return [
+                  `收入 ${formatNumber(day.income)} 金`,
+                  `支出 ${formatNumber(day.expense)} 金`,
+                  `${day.count} 条记录`,
+                ];
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  function renderSettings() {
+    renderSettingsAccounts();
+    renderSettingsCharacters();
+    renderSettingsDungeons();
+    renderEventTypes();
+  }
+
+  function toggleTableRows(tbodySelector, emptySelector, rows) {
+    const tbody = $(tbodySelector);
+    if (!tbody) return;
+    const tableScroll = tbody.closest('.table-scroll');
+    const empty = $(emptySelector);
+    if (rows.length) {
+      tableScroll.hidden = false;
+      empty.hidden = true;
+    } else {
+      tableScroll.hidden = true;
+      empty.hidden = false;
+    }
+  }
+
+  function renderSettingsAccounts() {
+    const rows = state.accounts || [];
+    const tbody = $('#settings-account-rows');
+    tbody.innerHTML = rows.map((account) => `<tr>
+      <td>
+        <div class="character-cell">
+          <span class="avatar is-muted">${escapeHTML(firstChar(account.name))}</span>
+          <div class="cell-stack">
+            <span class="cell-main">${escapeHTML(account.name)}</span>
+            <span class="cell-sub">ID ${Number(account.id)}</span>
+          </div>
+        </div>
+      </td>
+      <td>${account.note ? `<span class="note-text" title="${escapeHTML(account.note)}">${escapeHTML(account.note)}</span>` : '<span class="no-event">—</span>'}</td>
+      <td class="col-number">${Number(account.character_count || 0)}</td>
+      <td class="col-actions">
+        <div class="row-actions">
+          <button class="link-button" type="button" data-action="edit-account" data-id="${Number(account.id)}">编辑</button>
+          <button class="link-button is-danger" type="button" data-action="delete-account" data-id="${Number(account.id)}">删除</button>
+        </div>
+      </td>
+    </tr>`).join('');
+    toggleTableRows('#settings-account-rows', '#settings-account-empty', rows);
+  }
+
+  function renderSettingsCharacters() {
+    const rows = state.characters || [];
+    const tbody = $('#settings-character-rows');
+    tbody.innerHTML = rows.map((character) => {
+      const active = Boolean(character.active);
+      return `<tr>
+        <td>
+          <div class="character-cell">
+            <span class="avatar ${active ? '' : 'is-muted'}">${escapeHTML(firstChar(character.name))}</span>
+            <div class="cell-stack">
+              <span class="cell-main">${escapeHTML(character.name)}</span>
+              <span class="cell-sub">ID ${Number(character.id)}</span>
+            </div>
+          </div>
+        </td>
+        <td><span class="account-name">${escapeHTML(character.account_name || '—')}</span></td>
+        <td>
+          <div class="cell-stack">
+            <span class="cell-main">${escapeHTML(character.server || '未填写服务器')}</span>
+            <span class="cell-sub">${escapeHTML(character.school || '未填写门派')}</span>
+          </div>
+        </td>
+        <td>
+          <div class="switch-row">
+            <button class="switch" type="button" role="switch" aria-checked="${active}" aria-label="${active ? '停用' : '启用'}${escapeHTML(character.name)}" data-action="toggle-character" data-id="${Number(character.id)}"></button>
+            <span class="switch-label">${active ? '启用' : '停用'}</span>
+          </div>
+        </td>
+        <td class="col-note">${character.note ? `<span class="note-text" title="${escapeHTML(character.note)}">${escapeHTML(character.note)}</span>` : '<span class="no-event">—</span>'}</td>
+        <td class="col-actions">
+          <div class="row-actions">
+            <button class="link-button" type="button" data-action="edit-character" data-id="${Number(character.id)}">编辑</button>
+            <button class="link-button is-danger" type="button" data-action="delete-character" data-id="${Number(character.id)}">删除</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+    toggleTableRows('#settings-character-rows', '#settings-character-empty', rows);
+  }
+
+  function renderSettingsDungeons() {
+    const rows = state.dungeons || [];
+    const tbody = $('#settings-dungeon-rows');
+    tbody.innerHTML = rows.map((dungeon) => {
+      const active = Boolean(dungeon.active);
+      return `<tr>
+        <td>
+          <div class="cell-stack">
+            <span class="cell-main">${escapeHTML(dungeon.name)}</span>
+            <span class="cell-sub">ID ${Number(dungeon.id)}</span>
+          </div>
+        </td>
+        <td class="col-number">${Number(dungeon.total_bosses)}</td>
+        <td class="col-number">${Number(dungeon.sort_order)}</td>
+        <td>
+          <div class="switch-row">
+            <button class="switch" type="button" role="switch" aria-checked="${active}" aria-label="${active ? '停用' : '启用'}${escapeHTML(dungeon.name)}" data-action="toggle-dungeon" data-id="${Number(dungeon.id)}"></button>
+            <span class="switch-label">${active ? '启用' : '停用'}</span>
+          </div>
+        </td>
+        <td class="col-actions">
+          <div class="row-actions">
+            <button class="link-button" type="button" data-action="edit-dungeon" data-id="${Number(dungeon.id)}">编辑</button>
+            <button class="link-button is-danger" type="button" data-action="delete-dungeon" data-id="${Number(dungeon.id)}">删除</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+    toggleTableRows('#settings-dungeon-rows', '#settings-dungeon-empty', rows);
+  }
+
+  function renderEventTypes() {
+    const rows = state.eventTypes || [];
+    const container = $('#event-type-list');
+    const descriptions = {
+      奇遇: '记录触发的奇遇与次数',
+      资历: '填写每次增量，底部自动汇总',
+      其它: '记录其它值得保留的事件',
+    };
+    container.innerHTML = rows.map((type) => {
+      const active = Boolean(type.active);
+      return `<div class="event-type-row ${active ? 'is-active' : ''}">
+        <span class="type-glyph">${escapeHTML(firstChar(type.name))}</span>
+        <span class="event-type-copy">
+          <strong>${escapeHTML(type.name)}</strong>
+          <small>${escapeHTML(descriptions[type.name] || '自定义事件类型')}</small>
+        </span>
+        <button class="switch" type="button" role="switch" aria-checked="${active}" aria-label="${active ? '停用' : '启用'}${escapeHTML(type.name)}" data-action="toggle-event-type" data-id="${Number(type.id)}"></button>
+      </div>`;
+    }).join('');
+    $('#event-types-empty').hidden = rows.length > 0;
+  }
+
+  function setTab(tab) {
+    if (!['overview', 'income', 'settings'].includes(tab)) return;
+    state.tab = tab;
+    $$('.view').forEach((view) => {
+      view.hidden = view.dataset.view !== tab;
+    });
+    $$('#main-tabs .tab').forEach((button) => {
+      const active = button.dataset.tab === tab;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-selected', String(active));
+    });
+    const titles = { overview: '总览', income: '收益流水', settings: '设置' };
+    document.title = `${titles[tab]} · ${TITLE_SUFFIX}`;
+    window.scrollTo(0, 0);
+    if (tab === 'overview') renderOverviewChart();
+    else if (tab === 'income') renderTrend();
+  }
+
+  function setIncomeSubtab(subtab) {
+    if (!['income', 'event'].includes(subtab)) return;
+    state.incomeSubtab = subtab;
+    $('#income-view').hidden = subtab !== 'income';
+    $('#event-view').hidden = subtab !== 'event';
+    $$('.subtab').forEach((button) => {
+      const active = button.dataset.subtab === subtab;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-selected', String(active));
+    });
+    const headAction = $('#income-head-action');
+    if (subtab === 'event') {
+      headAction.dataset.action = 'add-event';
+      $('#income-head-action-label').textContent = '新增事件';
+    } else {
+      headAction.dataset.action = 'add-income';
+      $('#income-head-action-label').textContent = '新增收益';
+    }
+  }
+
+  function fillFormCharacters(select, currentId = null, includeInactive = false) {
+    const options = characterOptionList({ includeInactive, currentId });
+    select.innerHTML = [
+      '<option value="">请选择角色</option>',
+      ...options.map((option) => `<option value="${escapeHTML(option.value)}">${escapeHTML(option.label)}</option>`),
+    ].join('');
+    if (currentId) select.value = String(currentId);
+    else if (options.length) select.value = options[0].value;
+  }
+
+  function fillAccountSelect(select, currentId = null) {
+    select.innerHTML = state.accounts.map((account) => (
+      `<option value="${Number(account.id)}">${escapeHTML(account.name)}</option>`
+    )).join('');
+    if (currentId) select.value = String(currentId);
+  }
+
+  function fillDungeonSelect(select, currentDungeonId = null) {
+    const current = state.dungeons.find((dungeon) => String(dungeon.id) === String(currentDungeonId));
+    const activeDungeons = state.dungeons.filter((dungeon) => dungeon.active || dungeon.id === current?.id);
+    select.innerHTML = [
+      '<option value="">请选择副本</option>',
+      ...activeDungeons.map((dungeon) => `<option value="${Number(dungeon.id)}">${escapeHTML(dungeon.name)}${dungeon.active ? '' : ' · 已停用'}</option>`),
+      '<option value="__custom__">其它（手动填写）</option>',
+    ].join('');
+    if (currentDungeonId && current) select.value = String(currentDungeonId);
+  }
+
+  function updateIncomeDungeonFields() {
+    const category = $('#income-form-category').value;
+    const fields = $('#income-dungeon-fields');
+    const select = $('#income-form-dungeon');
+    const customField = $('#income-custom-dungeon-field');
+    const bossInput = $('#income-form-bosses');
+    const hint = $('#income-boss-hint');
+    const isDungeon = category === '副本';
+    fields.hidden = !isDungeon;
+    if (!isDungeon) {
+      customField.hidden = true;
+      return;
+    }
+    const isCustom = select.value === '__custom__';
+    customField.hidden = !isCustom;
+    if (isCustom) {
+      bossInput.max = '999';
+      hint.textContent = '手动填写的副本不计入总览 CD 进度。';
+      return;
+    }
+    const dungeon = state.dungeons.find((item) => String(item.id) === select.value);
+    if (dungeon) {
+      bossInput.max = String(dungeon.total_bosses);
+      hint.textContent = `总首领数 ${dungeon.total_bosses}；本周进度取最高值计入总览。`;
+    } else {
+      bossInput.max = '999';
+      hint.textContent = '选择副本后自动带出总首领数。';
+    }
+  }
+
+  function updateNetPreview() {
+    const income = Number($('#income-form-income').value) || 0;
+    const expense = Number($('#income-form-expense').value) || 0;
+    const net = round2(income - expense);
+    const preview = $('#income-net-preview');
+    $('#income-net-value').textContent = `${formatNumber(net)} 金`;
+    preview.classList.toggle('is-negative', net < 0);
+  }
+
+  function updateEventValueField() {
+    const type = $('#event-form-type').value;
+    const label = $('#event-value-label');
+    const input = $('#event-form-value');
+    const hint = $('#event-value-hint');
+    if (type === '资历') {
+      label.innerHTML = '资历增量 <em>*</em>';
+      input.required = true;
+      input.placeholder = '例：120（本次增加的资历）';
+      hint.textContent = '所有资历类型的数值会在事件列表底部自动汇总。';
+    } else {
+      label.textContent = '数值（可选）';
+      input.required = false;
+      input.placeholder = '可填次数或其它数值';
+      hint.textContent = '资历类型会汇总所有增量。';
+    }
+  }
+
+  function openIncomeForm(record = null) {
+    const currentId = record?.character_id || null;
+    const available = state.characters.filter((character) => character.active || character.id === currentId);
+    if (!available.length) {
+      showToast('请先在设置中启用一个角色，再记录收益。', 'error');
+      setTab('settings');
+      return;
+    }
+    fillFormCharacters($('#income-form-character'), currentId, Boolean(currentId));
+    fillDungeonSelect($('#income-form-dungeon'), record?.dungeon_id || null);
+    $('#income-id').value = record ? String(record.id) : '';
+    $('#income-date').value = record?.date || shanghaiToday();
+    $('#income-form-category').value = record?.category || '副本';
+    $('#income-form-title').value = record?.title || '';
+    $('#income-form-income').value = record ? record.income : '';
+    $('#income-form-expense').value = record ? record.expense : '';
+    $('#income-form-note').value = record?.note || '';
+    $('#income-form-bosses').value = record?.bosses_done ?? '';
+    $('#income-form-dungeon-name').value = record?.dungeon_name || '';
+    $('#income-form-dungeon').value = record?.dungeon_id
+      ? String(record.dungeon_id)
+      : (record?.dungeon_name ? '__custom__' : '');
+    updateIncomeDungeonFields();
+    updateNetPreview();
+    setFormError('income-form-error', '');
+    $('#income-dialog-kicker').textContent = record ? 'EDIT RECORD' : 'NEW RECORD';
+    $('#income-dialog-title').textContent = record ? '编辑收益' : '新增收益';
+    $('#income-submit').textContent = record ? '保存修改' : '保存收益';
+    openDialog('income-dialog');
+  }
+
+  async function submitIncomeForm(event) {
+    event.preventDefault();
+    setFormError('income-form-error', '');
+    const id = $('#income-id').value;
+    const date = $('#income-date').value;
+    const characterId = $('#income-form-character').value;
+    const category = $('#income-form-category').value;
+    const title = $('#income-form-title').value.trim();
+    const note = $('#income-form-note').value.trim();
+    const income = Number($('#income-form-income').value || 0);
+    const expense = Number($('#income-form-expense').value || 0);
+    const dungeonValue = $('#income-form-dungeon').value;
+    const customName = $('#income-form-dungeon-name').value.trim();
+    const bossRaw = $('#income-form-bosses').value;
+
+    if (!date) return setFormError('income-form-error', '请选择日期。');
+    if (!characterId) return setFormError('income-form-error', '请选择角色。');
+    if (!title) return setFormError('income-form-error', '请填写收益名称。');
+    if (!Number.isFinite(income) || income < 0) return setFormError('income-form-error', '收入必须是不小于 0 的数字。');
+    if (!Number.isFinite(expense) || expense < 0) return setFormError('income-form-error', '支出必须是不小于 0 的数字。');
+    if (category === '副本' && !dungeonValue) {
+      return setFormError('income-form-error', '分类为副本时，请选择副本或手动填写名称。');
+    }
+    if (category === '副本' && dungeonValue === '__custom__' && !customName) {
+      return setFormError('income-form-error', '请填写手动输入的副本名称。');
+    }
+
+    let bossesDone = null;
+    if (category === '副本' && bossRaw !== '') {
+      bossesDone = Number(bossRaw);
+      if (!Number.isInteger(bossesDone) || bossesDone < 0) {
+        return setFormError('income-form-error', 'Boss 进度必须是大于等于 0 的整数。');
+      }
+      const selectedDungeon = state.dungeons.find((dungeon) => String(dungeon.id) === dungeonValue);
+      if (selectedDungeon && bossesDone > selectedDungeon.total_bosses) {
+        return setFormError('income-form-error', `Boss 进度不能超过总首领数 ${selectedDungeon.total_bosses}。`);
+      }
+    }
+
+    const payload = {
+      date,
+      character_id: Number(characterId),
+      category,
+      title,
+      income: round2(income),
+      expense: round2(expense),
+      note,
+      dungeon_id: category === '副本' && dungeonValue !== '__custom__' && dungeonValue ? Number(dungeonValue) : null,
+      dungeon_name: category === '副本' && dungeonValue === '__custom__' ? customName : '',
+      bosses_done: category === '副本' ? bossesDone : null,
+    };
+
+    const button = $('#income-submit');
+    setButtonBusy(button, true, '保存中…');
+    try {
+      if (id) await mutation(`/api/income-records?id=${encodeURIComponent(id)}`, 'PUT', payload);
+      else await mutation('/api/income-records', 'POST', payload);
+      closeDialog('income-dialog');
+      showToast(id ? '收益记录已更新。' : '收益记录已保存。', 'success');
+      await refreshAfterChange({ quiet: true });
+    } catch (error) {
+      setFormError('income-form-error', error.message);
+    } finally {
+      setButtonBusy(button, false);
+    }
+  }
+
+  function openEventForm(record = null) {
+    const currentId = record?.character_id || null;
+    const available = state.characters.filter((character) => character.active || character.id === currentId);
+    if (!available.length) {
+      showToast('请先在设置中启用一个角色，再记录事件。', 'error');
+      setTab('settings');
+      return;
+    }
+    const activeTypes = state.eventTypes.filter((type) => type.active || type.name === record?.type);
+    if (!activeTypes.length) {
+      showToast('没有可用的事件类型，请到设置中启用。', 'error');
+      setTab('settings');
+      return;
+    }
+    fillFormCharacters($('#event-form-character'), currentId, Boolean(currentId));
+    $('#event-form-type').innerHTML = activeTypes.map((type) => (
+      `<option value="${escapeHTML(type.name)}">${escapeHTML(type.name)}${type.active ? '' : ' · 已停用'}</option>`
+    )).join('');
+    $('#event-id').value = record ? String(record.id) : '';
+    $('#event-date').value = record?.date || shanghaiToday();
+    $('#event-form-type').value = record?.type || activeTypes[0].name;
+    $('#event-form-title').value = record?.title || '';
+    $('#event-form-value').value = record?.value ?? '';
+    $('#event-form-note').value = record?.note || '';
+    updateEventValueField();
+    setFormError('event-form-error', '');
+    $('#event-dialog-kicker').textContent = record ? 'EDIT EVENT' : 'NEW EVENT';
+    $('#event-dialog-title').textContent = record ? '编辑事件' : '新增事件';
+    $('#event-submit').textContent = record ? '保存修改' : '保存事件';
+    openDialog('event-dialog');
+  }
+
+  async function submitEventForm(event) {
+    event.preventDefault();
+    setFormError('event-form-error', '');
+    const id = $('#event-id').value;
+    const date = $('#event-date').value;
+    const characterId = $('#event-form-character').value;
+    const type = $('#event-form-type').value;
+    const title = $('#event-form-title').value.trim();
+    const note = $('#event-form-note').value.trim();
+    const valueRaw = $('#event-form-value').value;
+
+    if (!date) return setFormError('event-form-error', '请选择日期。');
+    if (!characterId) return setFormError('event-form-error', '请选择角色。');
+    if (!type) return setFormError('event-form-error', '请选择事件类型。');
+    if (!title) return setFormError('event-form-error', '请填写事件标题。');
+    if (type === '资历' && valueRaw === '') {
+      return setFormError('event-form-error', '类型为资历时，请填写本次增量。');
+    }
+    let value = null;
+    if (valueRaw !== '') {
+      value = Number(valueRaw);
+      if (!Number.isFinite(value)) return setFormError('event-form-error', '数值必须是数字。');
+      value = round2(value);
+    }
+
+    const payload = { date, character_id: Number(characterId), type, title, value, note };
+    const button = $('#event-submit');
+    setButtonBusy(button, true, '保存中…');
+    try {
+      if (id) await mutation(`/api/event-records?id=${encodeURIComponent(id)}`, 'PUT', payload);
+      else await mutation('/api/event-records', 'POST', payload);
+      closeDialog('event-dialog');
+      showToast(id ? '事件记录已更新。' : '事件记录已保存。', 'success');
+      await refreshAfterChange({ quiet: true });
+    } catch (error) {
+      setFormError('event-form-error', error.message);
+    } finally {
+      setButtonBusy(button, false);
+    }
+  }
+
+  function openAccountForm(record = null) {
+    $('#account-id').value = record ? String(record.id) : '';
+    $('#account-name').value = record?.name || '';
+    $('#account-note').value = record?.note || '';
+    setFormError('account-form-error', '');
+    $('#account-dialog-title').textContent = record ? '编辑账号' : '添加账号';
+    openDialog('account-dialog');
+  }
+
+  async function submitAccountForm(event) {
+    event.preventDefault();
+    setFormError('account-form-error', '');
+    const id = $('#account-id').value;
+    const name = $('#account-name').value.trim();
+    const note = $('#account-note').value.trim();
+    if (!name) return setFormError('account-form-error', '请填写账号名称。');
+    const button = $('#account-form button[type="submit"]');
+    setButtonBusy(button, true, '保存中…');
+    try {
+      if (id) await mutation(`/api/accounts?id=${encodeURIComponent(id)}`, 'PUT', { name, note });
+      else await mutation('/api/accounts', 'POST', { name, note });
+      closeDialog('account-dialog');
+      showToast(id ? '账号已更新。' : '账号已添加。', 'success');
+      await refreshAfterChange({ quiet: true });
+    } catch (error) {
+      setFormError('account-form-error', error.message);
+    } finally {
+      setButtonBusy(button, false);
+    }
+  }
+
+  function openCharacterForm(record = null) {
+    if (!state.accounts.length) {
+      showToast('请先添加账号，再添加角色。', 'error');
+      openAccountForm();
+      return;
+    }
+    fillAccountSelect($('#character-account'), record?.account_id || state.accounts[0].id);
+    $('#character-id').value = record ? String(record.id) : '';
+    $('#character-name').value = record?.name || '';
+    $('#character-server').value = record?.server || '';
+    $('#character-school').value = record?.school || '';
+    $('#character-note').value = record?.note || '';
+    $('#character-active').checked = record ? Boolean(record.active) : true;
+    setFormError('character-form-error', '');
+    $('#character-dialog-title').textContent = record ? '编辑角色' : '添加角色';
+    openDialog('character-dialog');
+  }
+
+  async function submitCharacterForm(event) {
+    event.preventDefault();
+    setFormError('character-form-error', '');
+    const id = $('#character-id').value;
+    const name = $('#character-name').value.trim();
+    const accountId = $('#character-account').value;
+    if (!name) return setFormError('character-form-error', '请填写角色名。');
+    if (!accountId) return setFormError('character-form-error', '请选择所属账号。');
+    const payload = {
+      account_id: Number(accountId),
+      name,
+      server: $('#character-server').value.trim(),
+      school: $('#character-school').value.trim(),
+      note: $('#character-note').value.trim(),
+      active: $('#character-active').checked ? 1 : 0,
+    };
+    const button = $('#character-form button[type="submit"]');
+    setButtonBusy(button, true, '保存中…');
+    try {
+      if (id) await mutation(`/api/characters?id=${encodeURIComponent(id)}`, 'PUT', payload);
+      else await mutation('/api/characters', 'POST', payload);
+      closeDialog('character-dialog');
+      showToast(id ? '角色已更新。' : '角色已添加。', 'success');
+      await refreshAfterChange({ quiet: true });
+    } catch (error) {
+      setFormError('character-form-error', error.message);
+    } finally {
+      setButtonBusy(button, false);
+    }
+  }
+
+  function openDungeonForm(record = null) {
+    $('#dungeon-id').value = record ? String(record.id) : '';
+    $('#dungeon-name').value = record?.name || '';
+    $('#dungeon-total').value = record ? record.total_bosses : 3;
+    $('#dungeon-sort').value = record ? record.sort_order : 100;
+    $('#dungeon-active').checked = record ? Boolean(record.active) : true;
+    setFormError('dungeon-form-error', '');
+    $('#dungeon-dialog-title').textContent = record ? '编辑副本' : '添加副本';
+    openDialog('dungeon-dialog');
+  }
+
+  async function submitDungeonForm(event) {
+    event.preventDefault();
+    setFormError('dungeon-form-error', '');
+    const id = $('#dungeon-id').value;
+    const name = $('#dungeon-name').value.trim();
+    const total = Number($('#dungeon-total').value);
+    const sort = Number($('#dungeon-sort').value || 100);
+    if (!name) return setFormError('dungeon-form-error', '请填写副本名称。');
+    if (!Number.isInteger(total) || total < 0 || total > 99) {
+      return setFormError('dungeon-form-error', '首领总数必须是 0 到 99 之间的整数。');
+    }
+    if (!Number.isInteger(sort) || sort < 0) {
+      return setFormError('dungeon-form-error', '排序值必须是非负整数。');
+    }
+    const payload = {
+      name,
+      total_bosses: total,
+      active: $('#dungeon-active').checked ? 1 : 0,
+      sort_order: sort,
+    };
+    const button = $('#dungeon-form button[type="submit"]');
+    setButtonBusy(button, true, '保存中…');
+    try {
+      if (id) await mutation(`/api/dungeons?id=${encodeURIComponent(id)}`, 'PUT', payload);
+      else await mutation('/api/dungeons', 'POST', payload);
+      closeDialog('dungeon-dialog');
+      showToast(id ? '副本已更新。' : '副本已添加。', 'success');
+      await refreshAfterChange({ quiet: true });
+    } catch (error) {
+      setFormError('dungeon-form-error', error.message);
+    } finally {
+      setButtonBusy(button, false);
+    }
+  }
+
+  async function deleteIncome(id) {
+    const record = state.incomeRecords.find((item) => Number(item.id) === Number(id));
+    if (!record) return;
+    const confirmed = await askConfirm({
+      title: '删除这条收益？',
+      message: `${record.date} · ${record.character_name} · ${record.title}，删除后无法撤销。`,
+    });
+    if (!confirmed) return;
+    try {
+      await api(`/api/income-records?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+      showToast('收益记录已删除。', 'success');
+      await refreshAfterChange({ quiet: true });
+    } catch (error) {
+      showToast(error.message, 'error');
+    }
+  }
+
+  async function deleteEvent(id) {
+    const record = state.eventRecords.find((item) => Number(item.id) === Number(id));
+    if (!record) return;
+    const confirmed = await askConfirm({
+      title: '删除这条事件？',
+      message: `${record.date} · ${record.character_name} · ${record.title}，删除后无法撤销。`,
+    });
+    if (!confirmed) return;
+    try {
+      await api(`/api/event-records?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+      showToast('事件记录已删除。', 'success');
+      await refreshAfterChange({ quiet: true });
+    } catch (error) {
+      showToast(error.message, 'error');
+    }
+  }
+
+  async function deleteAccount(id) {
+    const account = state.accounts.find((item) => Number(item.id) === Number(id));
+    if (!account) return;
+    const confirmed = await askConfirm({
+      title: '删除这个账号？',
+      message: `「${account.name}」下若还有角色将无法删除，请先处理角色。`,
+    });
+    if (!confirmed) return;
+    try {
+      await api(`/api/accounts?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+      showToast('账号已删除。', 'success');
+      await refreshAfterChange({ quiet: true });
+    } catch (error) {
+      showToast(error.message, 'error');
+    }
+  }
+
+  async function deleteCharacter(id) {
+    const character = state.characters.find((item) => Number(item.id) === Number(id));
+    if (!character) return;
+    const confirmed = await askConfirm({
+      title: '删除这个角色？',
+      message: `「${character.name}」的所有收益与事件记录会一并删除，且无法恢复。建议先导出备份。`,
+    });
+    if (!confirmed) return;
+    try {
+      await api(`/api/characters?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+      showToast('角色及其记录已删除。', 'success');
+      await refreshAfterChange({ quiet: true });
+    } catch (error) {
+      showToast(error.message, 'error');
+    }
+  }
+
+  async function deleteDungeon(id) {
+    const dungeon = state.dungeons.find((item) => Number(item.id) === Number(id));
+    if (!dungeon) return;
+    const confirmed = await askConfirm({
+      title: '删除这个副本？',
+      message: `「${dungeon.name}」会从 CD 进度中移除。历史收益仍保留副本名，但不再关联副本。`,
+    });
+    if (!confirmed) return;
+    try {
+      await api(`/api/dungeons?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+      showToast('副本已删除。', 'success');
+      await refreshAfterChange({ quiet: true });
+    } catch (error) {
+      showToast(error.message, 'error');
+    }
+  }
+
+  async function toggleCharacter(id, button) {
+    const character = state.characters.find((item) => Number(item.id) === Number(id));
+    if (!character) return;
+    button.disabled = true;
+    try {
+      await mutation(`/api/characters?id=${encodeURIComponent(id)}`, 'PUT', { active: character.active ? 0 : 1 });
+      showToast(character.active ? '角色已停用。' : '角色已启用。', 'success');
+      await refreshAfterChange({ quiet: true });
+    } catch (error) {
+      showToast(error.message, 'error');
+      button.disabled = false;
+    }
+  }
+
+  async function toggleDungeon(id, button) {
+    const dungeon = state.dungeons.find((item) => Number(item.id) === Number(id));
+    if (!dungeon) return;
+    button.disabled = true;
+    try {
+      await mutation(`/api/dungeons?id=${encodeURIComponent(id)}`, 'PUT', { active: dungeon.active ? 0 : 1 });
+      showToast(dungeon.active ? '副本已停用。' : '副本已启用。', 'success');
+      await refreshAfterChange({ quiet: true });
+    } catch (error) {
+      showToast(error.message, 'error');
+      button.disabled = false;
+    }
+  }
+
+  async function toggleEventType(id, button) {
+    const type = state.eventTypes.find((item) => Number(item.id) === Number(id));
+    if (!type) return;
+    button.disabled = true;
+    try {
+      await mutation(`/api/event-types?id=${encodeURIComponent(id)}`, 'PUT', { active: type.active ? 0 : 1 });
+      showToast(type.active ? '事件类型已停用。' : '事件类型已启用。', 'success');
+      await refreshAfterChange({ quiet: true });
+    } catch (error) {
+      showToast(error.message, 'error');
+      button.disabled = false;
+    }
+  }
+
+  async function exportData(button) {
+    setButtonBusy(button, true, '导出中…');
+    try {
+      const response = await fetch('/api/export', { cache: 'no-store' });
+      if (!response.ok) {
+        let message = `导出失败（HTTP ${response.status}）。`;
+        try {
+          const payload = await response.json();
+          if (payload?.error) message = payload.error;
+        } catch {
+          // ignore
+        }
+        throw new Error(message);
+      }
+      const blob = await response.blob();
+      const disposition = response.headers.get('content-disposition') || '';
+      const match = disposition.match(/filename="([^"]+)"/i);
+      const filename = match?.[1] || `jx3-income-backup-${shanghaiToday().replaceAll('-', '')}.json`;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 2000);
+      showToast('全量 JSON 已开始下载。', 'success');
+    } catch (error) {
+      showToast(error.message, 'error');
+    } finally {
+      setButtonBusy(button, false);
+    }
+  }
+
+  function syncIncomeFilters() {
+    state.incomeFilters = {
+      character_id: $('#income-character').value,
+      category: $('#income-category').value,
+      start: $('#income-start').value,
+      end: $('#income-end').value,
+    };
+  }
+
+  function syncEventFilters() {
+    state.eventFilters = {
+      character_id: $('#event-character').value,
+      type: $('#event-type').value,
+      start: $('#event-start').value,
+      end: $('#event-end').value,
+    };
+  }
+
+  async function reloadIncome() {
+    const { start, end } = state.incomeFilters;
+    if (start && end && start > end) {
+      showToast('开始日期不能晚于结束日期。', 'error');
+      return;
+    }
+    $('#income-list-subtitle').textContent = '正在载入…';
+    try {
+      state.incomeRecords = await fetchIncomeRecords();
+      renderIncome();
+    } catch (error) {
+      showToast(error.message, 'error');
+      renderIncome();
+    }
+  }
+
+  async function reloadEvents() {
+    const { start, end } = state.eventFilters;
+    if (start && end && start > end) {
+      showToast('开始日期不能晚于结束日期。', 'error');
+      return;
+    }
+    $('#event-list-subtitle').textContent = '正在载入…';
+    try {
+      state.eventRecords = await fetchEventRecords();
+      renderEventRecords();
+    } catch (error) {
+      showToast(error.message, 'error');
+      renderEventRecords();
+    }
+  }
+
+  async function loadTrend() {
+    try {
+      state.trend.data = await fetchTrend();
+      renderTrend();
+    } catch (error) {
+      showToast(error.message, 'error');
+    }
+  }
+
+  function findById(collection, id) {
+    return collection.find((item) => Number(item.id) === Number(id));
+  }
+
+  async function handleAction(button) {
+    const action = button.dataset.action;
+    const id = button.dataset.id;
+    if (action === 'go-tab') return setTab(button.dataset.tab);
+    if (action === 'overview-filter') {
+      state.overviewFilter = button.dataset.filter || 'all';
+      renderOverview();
+      return;
+    }
+    if (action === 'add-income') return openIncomeForm();
+    if (action === 'add-event') return openEventForm();
+    if (action === 'add-account') return openAccountForm();
+    if (action === 'add-character') return openCharacterForm();
+    if (action === 'add-dungeon') return openDungeonForm();
+    if (action === 'income-subtab') return setIncomeSubtab(button.dataset.subtab);
+    if (action === 'trend-mode') {
+      state.trend.mode = button.dataset.mode === 'week' ? 'week' : 'month';
+      await loadTrend();
+      return;
+    }
+    if (action === 'reset-income-filters') {
+      $('#income-character').value = '';
+      $('#income-category').value = '';
+      $('#income-start').value = '';
+      $('#income-end').value = '';
+      syncIncomeFilters();
+      await reloadIncome();
+      return;
+    }
+    if (action === 'reset-event-filters') {
+      $('#event-character').value = '';
+      $('#event-type').value = '';
+      $('#event-start').value = '';
+      $('#event-end').value = '';
+      syncEventFilters();
+      await reloadEvents();
+      return;
+    }
+    if (action === 'refresh-all') {
+      setButtonBusy(button, true, '刷新中…');
+      const ok = await refreshAfterChange();
+      setButtonBusy(button, false);
+      if (ok) showToast('数据已刷新。', 'success');
+      return;
+    }
+    if (action === 'edit-income') {
+      const record = findById(state.incomeRecords, id);
+      if (record) openIncomeForm(record);
+      return;
+    }
+    if (action === 'edit-event') {
+      const record = findById(state.eventRecords, id);
+      if (record) openEventForm(record);
+      return;
+    }
+    if (action === 'edit-account') {
+      const record = findById(state.accounts, id);
+      if (record) openAccountForm(record);
+      return;
+    }
+    if (action === 'edit-character') {
+      const record = findById(state.characters, id);
+      if (record) openCharacterForm(record);
+      return;
+    }
+    if (action === 'edit-dungeon') {
+      const record = findById(state.dungeons, id);
+      if (record) openDungeonForm(record);
+      return;
+    }
+    if (action === 'delete-income') return deleteIncome(id);
+    if (action === 'delete-event') return deleteEvent(id);
+    if (action === 'delete-account') return deleteAccount(id);
+    if (action === 'delete-character') return deleteCharacter(id);
+    if (action === 'delete-dungeon') return deleteDungeon(id);
+    if (action === 'toggle-character') return toggleCharacter(id, button);
+    if (action === 'toggle-dungeon') return toggleDungeon(id, button);
+    if (action === 'toggle-event-type') return toggleEventType(id, button);
+    if (action === 'export-data') return exportData(button);
+  }
+
+  function bindEvents() {
+    $$('#main-tabs .tab').forEach((button, index) => {
+      button.id = ['tab-overview', 'tab-income', 'tab-settings'][index];
+    });
+
+    document.addEventListener('click', (event) => {
+      const closeButton = event.target.closest('[data-close-dialog]');
+      if (closeButton) {
+        closeDialog(closeButton.dataset.closeDialog);
+        return;
+      }
+      const actionButton = event.target.closest('[data-action]');
+      if (!actionButton) return;
+      event.preventDefault();
+      handleAction(actionButton).catch((error) => {
+        console.error(error);
+        showToast(error.message || '操作失败，请稍后再试。', 'error');
+      });
+    });
+
+    $$('dialog.modal').forEach((dialog) => {
+      dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) {
+          if (dialog.id === 'confirm-dialog') settleConfirm(false);
+          else dialog.close();
+        }
+      });
+    });
+
+    $('#confirm-ok').addEventListener('click', () => settleConfirm(true));
+    $('#confirm-cancel').addEventListener('click', () => settleConfirm(false));
+    $('#confirm-dialog').addEventListener('close', () => {
+      if (state.confirmResolver) {
+        const resolver = state.confirmResolver;
+        state.confirmResolver = null;
+        resolver(false);
+      }
+    });
+
+    $('#income-form').addEventListener('submit', submitIncomeForm);
+    $('#event-form').addEventListener('submit', submitEventForm);
+    $('#account-form').addEventListener('submit', submitAccountForm);
+    $('#character-form').addEventListener('submit', submitCharacterForm);
+    $('#dungeon-form').addEventListener('submit', submitDungeonForm);
+
+    $('#income-form-category').addEventListener('change', updateIncomeDungeonFields);
+    $('#income-form-dungeon').addEventListener('change', () => {
+      const select = $('#income-form-dungeon');
+      const bossInput = $('#income-form-bosses');
+      const dungeon = state.dungeons.find((item) => String(item.id) === select.value);
+      if (dungeon && bossInput.value === '') bossInput.value = String(dungeon.total_bosses);
+      updateIncomeDungeonFields();
+    });
+    $('#income-form-income').addEventListener('input', updateNetPreview);
+    $('#income-form-expense').addEventListener('input', updateNetPreview);
+    $('#event-form-type').addEventListener('change', updateEventValueField);
+
+    ['income-character', 'income-category', 'income-start', 'income-end'].forEach((id) => {
+      document.getElementById(id).addEventListener('change', () => {
+        syncIncomeFilters();
+        reloadIncome();
+      });
+    });
+    ['event-character', 'event-type', 'event-start', 'event-end'].forEach((id) => {
+      document.getElementById(id).addEventListener('change', () => {
+        syncEventFilters();
+        reloadEvents();
+      });
+    });
+
+    $('#trend-month').addEventListener('change', async (event) => {
+      state.trend.month = event.target.value || shanghaiToday().slice(0, 7);
+      state.trend.mode = 'month';
+      await loadTrend();
+    });
+
+    $('#boot-retry').addEventListener('click', () => {
+      state.bootAttempts = 0;
+      bootstrap();
+    });
+  }
+
+  function setBootMessage(message) {
+    $('#boot-message').textContent = message;
+  }
+
+  async function bootstrap() {
+    if (state.booting) return;
+    state.booting = true;
+    if (state.bootTimer) {
+      clearTimeout(state.bootTimer);
+      state.bootTimer = null;
+    }
+    const screen = $('#boot-screen');
+    screen.hidden = false;
+    $('#boot-retry').hidden = true;
+    setBootMessage('正在连接 Cloudflare D1…');
+
+    try {
+      await loadInitialData();
+      screen.hidden = true;
+      state.bootAttempts = 0;
+      setTab('overview');
+      renderTrend();
+    } catch (error) {
+      state.bootAttempts += 1;
+      const retry = state.bootAttempts < MAX_BOOT_ATTEMPTS;
+      const suffix = retry
+        ? `将在 6 秒后自动重试（${state.bootAttempts}/${MAX_BOOT_ATTEMPTS}）。`
+        : '自动重试已停止，请检查绑定与数据库初始化后点击重新连接。';
+      setBootMessage(`${error.message} ${suffix}`);
+      $('#boot-retry').hidden = false;
+      if (retry) {
+        state.bootTimer = window.setTimeout(() => {
+          bootstrap();
+        }, 6000);
+      }
+    } finally {
+      state.booting = false;
+    }
+  }
+
+  function init() {
+    bindEvents();
+    setupChartDefaults();
+    $('#trend-month').value = state.trend.month;
+    bootstrap();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+  </script>
+</body>
+</html>
