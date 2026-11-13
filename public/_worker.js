@@ -167,6 +167,194 @@ function methodNotAllowed() {
   return fail('不支持的请求方法。', 405);
 }
 
+// ---------- 访问密码门 ----------
+// 所有页面与 /api/* 请求都必须先通过密码验证。
+// 密码默认 123456，可通过 Pages 环境变量 SITE_PASSWORD 覆盖（无需改代码）。
+
+const GATE_COOKIE = 'jw3_gate';
+const GATE_MAX_AGE = 60 * 60 * 24 * 30; // 30 天
+const GATE_DEFAULT_PASSWORD = '123456';
+
+function gatePassword(env) {
+  const configured = env && typeof env.SITE_PASSWORD === 'string' ? env.SITE_PASSWORD.trim() : '';
+  return configured === '' ? GATE_DEFAULT_PASSWORD : configured;
+}
+
+function toHex(bytes) {
+  let out = '';
+  for (const byte of bytes) out += byte.toString(16).padStart(2, '0');
+  return out;
+}
+
+// 会话令牌由密码派生：改密码会让所有旧 Cookie 立即失效。
+async function gateToken(env) {
+  const seed = new TextEncoder().encode(`jw3-gate:v1:${gatePassword(env)}`);
+  const digest = await crypto.subtle.digest('SHA-256', seed);
+  return toHex(new Uint8Array(digest));
+}
+
+function gateCookieValue(request) {
+  const header = request.headers.get('cookie') || '';
+  for (const part of header.split(';')) {
+    const index = part.indexOf('=');
+    if (index === -1) continue;
+    if (part.slice(0, index).trim() !== GATE_COOKIE) continue;
+    try {
+      return decodeURIComponent(part.slice(index + 1).trim());
+    } catch {
+      return '';
+    }
+  }
+  return '';
+}
+
+// 定长比较，避免通过响应时间猜密码。
+function constantTimeEquals(a, b) {
+  if (a.length !== b.length || a.length === 0) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i += 1) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+function safeRedirectTarget(raw) {
+  if (typeof raw !== 'string') return '/';
+  if (!raw.startsWith('/') || raw.startsWith('//') || raw.includes('\\')) return '/';
+  return raw;
+}
+
+function escapeGateHtml(value) {
+  return String(value).replace(/[&<>"']/g, (character) => {
+    switch (character) {
+      case '&': return '&amp;';
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '"': return '&quot;';
+      default: return '&#39;';
+    }
+  });
+}
+
+function gateLoginPage(errorText, next) {
+  const isError = errorText !== '';
+  const hint = isError ? errorText : '请输入访问密码后继续。';
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>需要访问密码 · 剑网3 个人收益工作台</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: #f4f1e9; color: #26221c; padding: 24px;
+    font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+  }
+  .gate {
+    width: 100%; max-width: 380px; background: #fffdf8; border: 1px solid #e2dbcb;
+    border-radius: 16px; padding: 32px 28px; box-shadow: 0 18px 40px rgba(60, 48, 30, 0.10);
+  }
+  .gate-mark { width: 34px; height: 34px; border-radius: 10px; background: #3c3222; margin-bottom: 18px; }
+  h1 { margin: 0 0 6px; font-size: 19px; }
+  .hint { margin: 0 0 22px; font-size: 13px; line-height: 1.6; color: #7a6f5c; }
+  .hint.is-error { color: #a63a2c; }
+  label { display: block; font-size: 12px; font-weight: 600; color: #6b6152; margin-bottom: 8px; }
+  input[type="password"] {
+    width: 100%; padding: 12px 14px; font-size: 16px; letter-spacing: 0.18em;
+    border: 1px solid #d8cfbb; border-radius: 10px; background: #fff; color: inherit;
+  }
+  input[type="password"]:focus { outline: 2px solid #3c3222; outline-offset: 1px; border-color: #3c3222; }
+  button {
+    width: 100%; margin-top: 18px; padding: 12px 16px; font-size: 14px; font-weight: 600;
+    color: #fffdf8; background: #3c3222; border: 0; border-radius: 10px; cursor: pointer;
+  }
+  button:hover { background: #52452f; }
+</style>
+</head>
+<body>
+  <form class="gate" method="POST" action="/__login" autocomplete="off">
+    <div class="gate-mark" aria-hidden="true"></div>
+    <h1>剑网3 个人收益工作台</h1>
+    <p class="hint${isError ? ' is-error' : ''}">${escapeGateHtml(hint)}</p>
+    <label for="password">访问密码</label>
+    <input id="password" name="password" type="password" inputmode="numeric" autocomplete="current-password" required autofocus>
+    <input type="hidden" name="next" value="${escapeGateHtml(next)}">
+    <button type="submit">进入工作台</button>
+  </form>
+</body>
+</html>`;
+}
+
+function gateLoginResponse(errorText, next, status) {
+  return new Response(gateLoginPage(errorText, next), {
+    status,
+    headers: {
+      'content-type': 'text/html; charset=utf-8',
+      'cache-control': 'no-store',
+      'x-content-type-options': 'nosniff',
+      'x-frame-options': 'DENY',
+      'referrer-policy': 'same-origin',
+    },
+  });
+}
+
+function gateCookie(token, maxAge) {
+  const parts = [`${GATE_COOKIE}=${token}`, 'Path=/', 'HttpOnly', 'SameSite=Lax', `Max-Age=${maxAge}`];
+  if (maxAge > 0) parts.push('Secure');
+  return parts.join('; ');
+}
+
+// 返回 null 表示已解锁、继续正常处理；否则返回应直接发出的响应。
+async function handleGate(request, env, isApi) {
+  const url = new URL(request.url);
+  const path = url.pathname;
+
+  if (path === '/__login') {
+    if (request.method !== 'POST') return gateLoginResponse('请通过页面表单提交。', '/', 405);
+    let form;
+    try {
+      form = await request.formData();
+    } catch {
+      return gateLoginResponse('请求格式不正确。', '/', 400);
+    }
+    const supplied = String(form.get('password') ?? '');
+    const target = safeRedirectTarget(String(form.get('next') ?? '/'));
+    if (!constantTimeEquals(supplied, gatePassword(env))) {
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      return gateLoginResponse('密码不正确，请重试。', target, 401);
+    }
+    const token = await gateToken(env);
+    return new Response(null, {
+      status: 303,
+      headers: {
+        location: target,
+        'set-cookie': gateCookie(token, GATE_MAX_AGE),
+        'cache-control': 'no-store',
+      },
+    });
+  }
+
+  if (path === '/__logout') {
+    return new Response(null, {
+      status: 303,
+      headers: {
+        location: '/',
+        'set-cookie': gateCookie('', 0),
+        'cache-control': 'no-store',
+      },
+    });
+  }
+
+  const expected = await gateToken(env);
+  if (constantTimeEquals(gateCookieValue(request), expected)) return null;
+
+  if (isApi) return fail('未授权：请先输入访问密码。', 401);
+  return gateLoginResponse('', path, 401);
+}
+
+
 // ---------- 账号 ----------
 
 async function accounts(context, method) {
@@ -860,7 +1048,7 @@ async function exportData(context, method) {
 function me(context, method) {
   if (method !== 'GET') return methodNotAllowed();
   const email = context.request.headers.get('Cf-Access-Authenticated-User-Email') || null;
-  return ok({ email, authenticated: Boolean(email), local: !email });
+  return ok({ email, authenticated: true, gate: 'password', local: !email });
 }
 
 async function health(context, method) {
@@ -883,6 +1071,10 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const isApi = url.pathname === '/api' || url.pathname.startsWith('/api/');
+
+    // 先验证访问密码：未解锁时页面返回登录表单，API 返回 401。
+    const gateResponse = await handleGate(request, env, isApi);
+    if (gateResponse !== null) return gateResponse;
 
     if (!isApi) {
       if (!env.ASSETS) return new Response('Not Found', { status: 404 });

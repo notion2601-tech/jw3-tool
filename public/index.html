@@ -2204,8 +2204,8 @@ p {
     <div class="access-badge" id="access-badge" hidden>
       <span class="access-dot" aria-hidden="true"></span>
       <span class="access-copy">
-        <span class="access-label">Cloudflare Access</span>
-        <span class="access-email" id="access-email">已验证</span>
+        <span class="access-label">访问密码</span>
+        <span class="access-email" id="access-email">已解锁</span>
       </span>
     </div>
   </header>
@@ -2563,7 +2563,7 @@ p {
 
   <footer class="site-footer">
     <p><span class="footer-mark" aria-hidden="true"></span>数据仅存储在你的 Cloudflare D1</p>
-    <p class="footer-meta"><span id="footer-week"></span><span class="footer-sep">·</span><span>Cloudflare Access 保护</span></p>
+    <p class="footer-meta"><span id="footer-week"></span><span class="footer-sep">·</span><span>访问密码保护</span></p>
   </footer>
 
   <div class="boot-screen" id="boot-screen">
@@ -3201,22 +3201,15 @@ p {
     state.eventFilters.character_id = eventCharacter.value;
   }
 
-  function renderIdentity() {
+    function renderIdentity() {
     const badge = $('#access-badge');
     const emailEl = $('#access-email');
     if (!badge || !emailEl) return;
     badge.hidden = false;
-    if (state.me?.email) {
-      badge.classList.remove('is-warning');
-      badge.querySelector('.access-label').textContent = 'Cloudflare Access';
-      emailEl.textContent = state.me.email;
-      badge.title = '已通过 Cloudflare Access 验证';
-    } else {
-      badge.classList.add('is-warning');
-      badge.querySelector('.access-label').textContent = '本地 / 未验证';
-      emailEl.textContent = '未检测到 Access 邮箱';
-      badge.title = '未检测到 Cloudflare Access 身份头；生产环境请检查 Access 应用是否覆盖当前域名。';
-    }
+    badge.classList.remove('is-warning');
+    badge.querySelector('.access-label').textContent = '访问密码';
+    emailEl.textContent = '已解锁';
+    badge.title = '已通过访问密码验证（会话有效期 30 天）';
   }
 
   function renderFooter() {
